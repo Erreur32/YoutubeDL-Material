@@ -87,8 +87,9 @@ exports.checkForYoutubeDLUpdate = async () => {
     const selected_fork = config_api.getConfigItem('ytdl_default_downloader');
     const output_file_path = getYoutubeDLPath();
     // get current version
-    let current_app_details_exists = fs.existsSync(CONSTS.DETAILS_BIN_PATH);
-    if (!current_app_details_exists[selected_fork]) {
+    const current_app_details_exists = fs.existsSync(CONSTS.DETAILS_BIN_PATH);
+    const current_app_details_json = current_app_details_exists ? fs.readJSONSync(CONSTS.DETAILS_BIN_PATH) : null;
+    if (!current_app_details_json || !current_app_details_json[selected_fork]) {
         logger.warn(`Failed to get youtube-dl binary details at location '${CONSTS.DETAILS_BIN_PATH}'. Generating file...`);
         updateDetailsJSON(CONSTS.OUTDATED_YOUTUBEDL_VERSION, selected_fork, output_file_path);
     }
@@ -97,12 +98,17 @@ exports.checkForYoutubeDLUpdate = async () => {
     const current_fork = current_app_details[selected_fork]['downloader'];
 
     const latest_version = await exports.getLatestUpdateVersion(selected_fork);
+    if (!latest_version) {
+        // getLatestUpdateVersion already logged the failure (e.g. GitHub API rate limit)
+        return;
+    }
     // if the binary does not exist, or default_downloader doesn't match existing fork, or if the fork has been updated, redownload
     // TODO: don't redownload if fork already exists
     if (!fs.existsSync(output_file_path) || current_fork !== selected_fork || !current_version || current_version !== latest_version) {
         logger.warn(`Updating ${selected_fork} binary to '${output_file_path}', downloading...`);
         await exports.updateYoutubeDL(latest_version);
     }
+    return latest_version;
 }
 
 // returns the tracked version for every downloader fork that has been downloaded so far,
@@ -141,8 +147,15 @@ async function downloadLatestYoutubeDLBinaryGeneric(youtubedl_fork, new_version,
 exports.getLatestUpdateVersion = async (youtubedl_fork) => {
     const tags_url = exports.youtubedl_forks[youtubedl_fork]['tags_url'];
     return new Promise(resolve => {
-        fetch(tags_url, {method: 'Get'})
-        .then(async res => res.json())
+        // GitHub's API rejects requests without a User-Agent header (403 Forbidden)
+        fetch(tags_url, {method: 'Get', headers: {'User-Agent': 'YoutubeDL-Material', 'Accept': 'application/vnd.github+json'}})
+        .then(async res => {
+            if (!res.ok) {
+                const body = await res.text();
+                throw new Error(`GitHub API responded with status ${res.status}: ${body}`);
+            }
+            return res.json();
+        })
         .then(async (json) => {
             if (!json || !json[0]) {
                 logger.error(`Failed to check ${youtubedl_fork} version for an update.`)

@@ -62,7 +62,10 @@ function generateFileObject(file_path, type) {
         return null;
     }
     const true_file_path = utils.getTrueFileName(jsonobj['_filename'], type);
-    // console.
+    if (!fs.existsSync(true_file_path)) {
+        logger.error(`Expected downloaded file was not found: ${true_file_path}. This usually means ffmpeg is missing or failed to merge the video/audio streams — make sure ffmpeg is installed and available on the PATH.`);
+        return null;
+    }
     const stats = fs.statSync(true_file_path);
 
     const file_id = utils.removeFileExtension(path.basename(file_path));

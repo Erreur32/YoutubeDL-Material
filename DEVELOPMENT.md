@@ -29,6 +29,8 @@ Navigate to the `youtubedl-material/backend` directory and run `npm start`.
 # Debugging the backend (VSC)
 Open the `youtubedl-material` directory in Visual Studio Code and run the launch configuration `Dev: Debug Backend`.
 
+This runs `npm run debug` from `./backend`, which sets `YTDL_MODE=debug` and starts the backend with `node app.js` directly (no pm2). Works on Linux/macOS/WSL out of the box. On native Windows (cmd/PowerShell), prefix the command with `cross-env` or set the environment variable separately before running `node app.js`.
+
 # Deploy changes
 
 ## Frontend

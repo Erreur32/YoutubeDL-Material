@@ -112,21 +112,24 @@ exports.getConfigItem = (key) => {
     return Object.byString(config_json, path);
 }
 
+// ensures every level of parent_path exists in config_json, creating missing objects along the way, then returns the parent object
+function ensureParentObject(config_json, parent_path) {
+    let elements = parent_path.split('.');
+    let current = config_json;
+    for (const element of elements) {
+        if (!current[element]) current[element] = {};
+        current = current[element];
+    }
+    return current;
+}
+
 exports.setConfigItem = (key, value) => {
     let success = false;
     let config_json = exports.getConfigFile();
     let path = exports.CONFIG_ITEMS[key]['path'];
     let element_name = getElementNameInConfig(path);
     let parent_path = getParentPath(path);
-    let parent_object = Object.byString(config_json, parent_path);
-    if (!parent_object) {
-        let parent_parent_path = getParentPath(parent_path);
-        let parent_parent_object = Object.byString(config_json, parent_parent_path);
-        let parent_path_arr = parent_path.split('.');
-        let parent_parent_single_key = parent_path_arr[parent_path_arr.length-1];
-        parent_parent_object[parent_parent_single_key] = {};
-        parent_object = Object.byString(config_json, parent_path);
-    }
+    let parent_object = ensureParentObject(config_json, parent_path);
     if (value === 'false') value = false;
     if (value === 'true') value = true;
     parent_object[element_name] = value;
@@ -152,7 +155,7 @@ exports.setConfigItems = (items) => {
         let item_parent_path = getParentPath(item_path);
         let item_element_name = getElementNameInConfig(item_path);
 
-        let item_parent_object = Object.byString(config_json, item_parent_path);
+        let item_parent_object = ensureParentObject(config_json, item_parent_path);
         item_parent_object[item_element_name] = value;
     }
 

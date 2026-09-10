@@ -653,6 +653,58 @@ const optionalJwt = async function (req, res, next) {
     return next();
 };
 
+// Server-side permission enforcement for privileged routes. UI-level permission
+// checks are convenience only and must not be relied upon (see security advisory
+// about missing server-side checks on multi-user admin APIs).
+const requirePermission = (permission) => async (req, res, next) => {
+    const multiUserMode = config_api.getConfigItem('ytdl_multi_user_mode');
+    // single-user instances have no user/role system to enforce permissions against
+    if (!multiUserMode) return next();
+
+    if (!req.isAuthenticated || !req.isAuthenticated() || !req.user) {
+        res.sendStatus(401);
+        return;
+    }
+
+    const has_permission = await auth_api.userHasPermission(req.user.uid, permission);
+    if (!has_permission) {
+        logger.warn(`User '${req.user.uid}' was denied access to '${req.path}' (missing permission '${permission}').`);
+        res.sendStatus(403);
+        return;
+    }
+
+    next();
+};
+
+// Rejects requests that try to use advanced download arguments (customArgs/additionalArgs/customOutput)
+// unless advanced downloads are enabled server-wide and, in multi-user mode, the user has permission.
+const requireAdvancedDownloadIfUsed = async (req, res, next) => {
+    const uses_advanced_args = !!(req.body && (req.body.customArgs || req.body.additionalArgs || req.body.customOutput));
+    if (!uses_advanced_args) return next();
+
+    if (!config_api.getConfigItem('ytdl_allow_advanced_download')) {
+        res.sendStatus(403);
+        return;
+    }
+
+    const multiUserMode = config_api.getConfigItem('ytdl_multi_user_mode');
+    if (!multiUserMode) return next();
+
+    if (!req.isAuthenticated || !req.isAuthenticated() || !req.user) {
+        res.sendStatus(401);
+        return;
+    }
+
+    const has_permission = await auth_api.userHasPermission(req.user.uid, 'advanced_download');
+    if (!has_permission) {
+        logger.warn(`User '${req.user.uid}' was denied use of advanced download arguments on '${req.path}'.`);
+        res.sendStatus(403);
+        return;
+    }
+
+    next();
+};
+
 app.get('/api/config', function(req, res) {
     let config_file = config_api.getConfigFile();
     res.send({
@@ -661,7 +713,7 @@ app.get('/api/config', function(req, res) {
     });
 });
 
-app.post('/api/setConfig', optionalJwt, function(req, res) {
+app.post('/api/setConfig', optionalJwt, requirePermission('settings'), function(req, res) {
     let new_config_file = req.body.new_config_file;
     if (new_config_file && new_config_file['YoutubeDLMaterial']) {
         let success = config_api.setConfigFile(new_config_file);
@@ -679,18 +731,18 @@ app.get('/api/versionInfo', (req, res) => {
     res.send({version_info: version_info, downloader_info: youtubedl_api.getCurrentVersionInfo()});
 });
 
-app.post('/api/restartServer', optionalJwt, (req, res) => {
+app.post('/api/restartServer', optionalJwt, requirePermission('settings'), (req, res) => {
     // delayed by a little bit so that the client gets a response
     setTimeout(() => {utils.restartServer()}, 100);
     res.send({success: true});
 });
 
-app.get('/api/getDBInfo', optionalJwt, async (req, res) => {
+app.get('/api/getDBInfo', optionalJwt, requirePermission('settings'), async (req, res) => {
     const db_info = await db_api.getDBStats();
     res.send(db_info);
 });
 
-app.post('/api/transferDB', optionalJwt, async (req, res) => {
+app.post('/api/transferDB', optionalJwt, requirePermission('settings'), async (req, res) => {
     const local_to_remote = req.body.local_to_remote;
     let success = null;
     let error = '';
@@ -707,7 +759,7 @@ app.post('/api/transferDB', optionalJwt, async (req, res) => {
     res.send({success: success, error: error});
 });
 
-app.post('/api/testConnectionString', optionalJwt, async (req, res) => {
+app.post('/api/testConnectionString', optionalJwt, requirePermission('settings'), async (req, res) => {
     const connection_string = req.body.connection_string;
     let success = null;
     let error = '';
@@ -717,7 +769,7 @@ app.post('/api/testConnectionString', optionalJwt, async (req, res) => {
     res.send({success: success, error: error});
 });
 
-app.post('/api/downloadFile', optionalJwt, async function(req, res) {
+app.post('/api/downloadFile', optionalJwt, requireAdvancedDownloadIfUsed, async function(req, res) {
     req.setTimeout(0); // remove timeout in case of long videos
     const url = req.body.url;
     const type = req.body.type ? req.body.type : 'video';
@@ -745,12 +797,12 @@ app.post('/api/downloadFile', optionalJwt, async function(req, res) {
     }
 });
 
-app.post('/api/killAllDownloads', optionalJwt, async function(req, res) {
+app.post('/api/killAllDownloads', optionalJwt, requirePermission('downloads_manager'), async function(req, res) {
     const result_obj = await killAllDownloads();
     res.send(result_obj);
 });
 
-app.post('/api/generateArgs', optionalJwt, async function(req, res) {
+app.post('/api/generateArgs', optionalJwt, requireAdvancedDownloadIfUsed, async function(req, res) {
     const url = req.body.url;
     const type = req.body.type;
     const user_uid = req.isAuthenticated() ? req.user.uid : null;
@@ -1528,7 +1580,7 @@ app.post('/api/uploadCookies', upload_multer.single('cookies'), async (req, res)
 
 // Updater API calls
 
-app.get('/api/updaterStatus', optionalJwt, async (req, res) => {
+app.get('/api/updaterStatus', optionalJwt, requirePermission('settings'), async (req, res) => {
     let status = updaterStatus;
 
     if (status) {
@@ -1539,7 +1591,7 @@ app.get('/api/updaterStatus', optionalJwt, async (req, res) => {
 
 });
 
-app.post('/api/updateServer', optionalJwt, async (req, res) => {
+app.post('/api/updateServer', optionalJwt, requirePermission('settings'), async (req, res) => {
     let tag = req.body.tag;
 
     updateServer(tag);
@@ -1552,7 +1604,7 @@ app.post('/api/updateServer', optionalJwt, async (req, res) => {
 
 // API Key API calls
 
-app.post('/api/generateNewAPIKey', optionalJwt, function (req, res) {
+app.post('/api/generateNewAPIKey', optionalJwt, requirePermission('settings'), function (req, res) {
     const new_api_key = uuid();
     config_api.setConfigItem('ytdl_api_key', new_api_key);
     res.send({new_api_key: new_api_key});
@@ -1625,7 +1677,7 @@ app.get('/api/thumbnail/:path', optionalJwt, async (req, res) => {
 
 // Downloads management
 
-app.post('/api/downloads', optionalJwt, async (req, res) => {
+app.post('/api/downloads', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const user_uid = req.isAuthenticated() ? req.user.uid : null;
     const uids = req.body.uids;
     let downloads = await db_api.getRecords('download_queue', {user_uid: user_uid});
@@ -1635,7 +1687,7 @@ app.post('/api/downloads', optionalJwt, async (req, res) => {
     res.send({downloads: downloads});
 });
 
-app.post('/api/download', optionalJwt, async (req, res) => {
+app.post('/api/download', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const download_uid = req.body.download_uid;
 
     const download = await db_api.getRecord('download_queue', {uid: download_uid});
@@ -1647,7 +1699,7 @@ app.post('/api/download', optionalJwt, async (req, res) => {
     }
 });
 
-app.post('/api/clearDownloads', optionalJwt, async (req, res) => {
+app.post('/api/clearDownloads', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const user_uid = req.isAuthenticated() ? req.user.uid : null;
     const clear_finished = req.body.clear_finished;
     const clear_paused = req.body.clear_paused;
@@ -1659,19 +1711,19 @@ app.post('/api/clearDownloads', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/clearDownload', optionalJwt, async (req, res) => {
+app.post('/api/clearDownload', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const download_uid = req.body.download_uid;
     const success = await downloader_api.clearDownload(download_uid);
     res.send({success: success});
 });
 
-app.post('/api/pauseDownload', optionalJwt, async (req, res) => {
+app.post('/api/pauseDownload', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const download_uid = req.body.download_uid;
     const success = await downloader_api.pauseDownload(download_uid);
     res.send({success: success});
 });
 
-app.post('/api/pauseAllDownloads', optionalJwt, async (req, res) => {
+app.post('/api/pauseAllDownloads', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const user_uid = req.isAuthenticated() ? req.user.uid : null;
     let success = true;
     const all_running_downloads = await db_api.getRecords('download_queue', {paused: false, finished: false, user_uid: user_uid});
@@ -1681,13 +1733,13 @@ app.post('/api/pauseAllDownloads', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/resumeDownload', optionalJwt, async (req, res) => {
+app.post('/api/resumeDownload', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const download_uid = req.body.download_uid;
     const success = await downloader_api.resumeDownload(download_uid);
     res.send({success: success});
 });
 
-app.post('/api/resumeAllDownloads', optionalJwt, async (req, res) => {
+app.post('/api/resumeAllDownloads', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const user_uid = req.isAuthenticated() ? req.user.uid : null;
     let success = true;
     const all_paused_downloads = await db_api.getRecords('download_queue', {paused: true, user_uid: user_uid, error: null});
@@ -1697,13 +1749,13 @@ app.post('/api/resumeAllDownloads', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/restartDownload', optionalJwt, async (req, res) => {
+app.post('/api/restartDownload', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const download_uid = req.body.download_uid;
     const new_download = await downloader_api.restartDownload(download_uid);
     res.send({success: !!new_download, new_download_uid: new_download ? new_download['uid'] : null});
 });
 
-app.post('/api/cancelDownload', optionalJwt, async (req, res) => {
+app.post('/api/cancelDownload', optionalJwt, requirePermission('downloads_manager'), async (req, res) => {
     const download_uid = req.body.download_uid;
     const success = await downloader_api.cancelDownload(download_uid);
     res.send({success: success});
@@ -1711,7 +1763,7 @@ app.post('/api/cancelDownload', optionalJwt, async (req, res) => {
 
 // tasks
 
-app.post('/api/getTasks', optionalJwt, async (req, res) => {
+app.post('/api/getTasks', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const tasks = await db_api.getRecords('tasks');
     for (let task of tasks) {
         if (!tasks_api.TASKS[task['key']]) {
@@ -1723,7 +1775,7 @@ app.post('/api/getTasks', optionalJwt, async (req, res) => {
     res.send({tasks: tasks});
 });
 
-app.post('/api/resetTasks', optionalJwt, async (req, res) => {
+app.post('/api/resetTasks', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const tasks_keys = Object.keys(tasks_api.TASKS);
     for (let i = 0; i < tasks_keys.length; i++) {
         const task_key = tasks_keys[i];
@@ -1734,14 +1786,14 @@ app.post('/api/resetTasks', optionalJwt, async (req, res) => {
     res.send({success: true});
 });
 
-app.post('/api/getTask', optionalJwt, async (req, res) => {
+app.post('/api/getTask', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const task_key = req.body.task_key;
     const task = await db_api.getRecord('tasks', {key: task_key});
     if (task['schedule']) task['next_invocation'] = tasks_api.TASKS[task_key]['job'].nextInvocation().getTime();
     res.send({task: task});
 });
 
-app.post('/api/runTask', optionalJwt, async (req, res) => {
+app.post('/api/runTask', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const task_key = req.body.task_key;
     const task = await db_api.getRecord('tasks', {key: task_key});
 
@@ -1752,7 +1804,7 @@ app.post('/api/runTask', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/confirmTask', optionalJwt, async (req, res) => {
+app.post('/api/confirmTask', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const task_key = req.body.task_key;
     const task = await db_api.getRecord('tasks', {key: task_key});
 
@@ -1763,7 +1815,7 @@ app.post('/api/confirmTask', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/updateTaskSchedule', optionalJwt, async (req, res) => {
+app.post('/api/updateTaskSchedule', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const task_key = req.body.task_key;
     const new_schedule = req.body.new_schedule;
   
@@ -1772,7 +1824,7 @@ app.post('/api/updateTaskSchedule', optionalJwt, async (req, res) => {
     res.send({success: true});
 });
 
-app.post('/api/updateTaskData', optionalJwt, async (req, res) => {
+app.post('/api/updateTaskData', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const task_key = req.body.task_key;
     const new_data = req.body.new_data;
   
@@ -1781,7 +1833,7 @@ app.post('/api/updateTaskData', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/updateTaskOptions', optionalJwt, async (req, res) => {
+app.post('/api/updateTaskOptions', optionalJwt, requirePermission('tasks_manager'), async (req, res) => {
     const task_key = req.body.task_key;
     const new_options = req.body.new_options;
   
@@ -1790,7 +1842,7 @@ app.post('/api/updateTaskOptions', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/getDBBackups', optionalJwt, async (req, res) => {
+app.post('/api/getDBBackups', optionalJwt, requirePermission('settings'), async (req, res) => {
     const backup_dir = path.join('appdata', 'db_backup');
     fs.ensureDirSync(backup_dir);
     const db_backups = [];
@@ -1813,7 +1865,7 @@ app.post('/api/getDBBackups', optionalJwt, async (req, res) => {
     res.send({db_backups: db_backups});
 });
 
-app.post('/api/restoreDBBackup', optionalJwt, async (req, res) => {
+app.post('/api/restoreDBBackup', optionalJwt, requirePermission('settings'), async (req, res) => {
     const file_name = req.body.file_name;
 
     const success = await db_api.restoreDB(file_name);
@@ -1823,7 +1875,7 @@ app.post('/api/restoreDBBackup', optionalJwt, async (req, res) => {
 
 // logs management
 
-app.post('/api/logs', optionalJwt, async function(req, res) {
+app.post('/api/logs', optionalJwt, requirePermission('settings'), async function(req, res) {
     let logs = null;
     let lines = req.body.lines;
     const logs_path = path.join('appdata', 'logs', 'combined.log')
@@ -1840,7 +1892,7 @@ app.post('/api/logs', optionalJwt, async function(req, res) {
     });
 });
 
-app.post('/api/clearAllLogs', optionalJwt, async function(req, res) {
+app.post('/api/clearAllLogs', optionalJwt, requirePermission('settings'), async function(req, res) {
     const logs_path = path.join('appdata', 'logs', 'combined.log');
     const logs_err_path = path.join('appdata', 'logs', 'error.log');
     let success = false;
@@ -1875,7 +1927,7 @@ app.post('/api/auth/register', optionalJwt, async (req, res) => {
     const username = req.body.username;
     const plaintextPassword = req.body.password;
 
-    if (userid !== 'admin' && !config_api.getConfigItem('ytdl_allow_registration') && !req.isAuthenticated() && (!req.user || !exports.userHasPermission(req.user.uid, 'settings'))) {
+    if (userid !== 'admin' && !config_api.getConfigItem('ytdl_allow_registration') && !req.isAuthenticated() && (!req.user || !(await auth_api.userHasPermission(req.user.uid, 'settings')))) {
         logger.error(`Registration failed for user ${userid}. Registration is disabled.`);
         res.sendStatus(409);
         return;
@@ -1898,8 +1950,9 @@ app.post('/api/auth/register', optionalJwt, async (req, res) => {
       return;
     }
   
+    const { passhash, ...safe_new_user } = new_user;
     res.send({
-      user: new_user
+      user: safe_new_user
     });
 });
 app.post('/api/auth/login'
@@ -1927,14 +1980,19 @@ app.post('/api/auth/adminExists', async (req, res) => {
 // user management
 app.post('/api/getUsers', optionalJwt, async (req, res) => {
     let users = await db_api.getRecords('users');
+    // never expose password hashes to clients, regardless of caller's permissions
+    users = users.map(user => {
+        const { passhash, ...safe_user } = user;
+        return safe_user;
+    });
     res.send({users: users});
 });
-app.post('/api/getRoles', optionalJwt, async (req, res) => {
+app.post('/api/getRoles', optionalJwt, requirePermission('settings'), async (req, res) => {
     let roles = await db_api.getRecords('roles');
     res.send({roles: roles});
 });
 
-app.post('/api/updateUser', optionalJwt, async (req, res) => {
+app.post('/api/updateUser', optionalJwt, requirePermission('settings'), async (req, res) => {
     let change_obj = req.body.change_object;
     try {
         if (change_obj.name) {
@@ -1950,7 +2008,7 @@ app.post('/api/updateUser', optionalJwt, async (req, res) => {
     }
 });
 
-app.post('/api/deleteUser', optionalJwt, async (req, res) => {
+app.post('/api/deleteUser', optionalJwt, requirePermission('settings'), async (req, res) => {
     let uid = req.body.uid;
     try {
         const success = await auth_api.deleteUser(uid);
@@ -1961,7 +2019,7 @@ app.post('/api/deleteUser', optionalJwt, async (req, res) => {
     }
 });
 
-app.post('/api/changeUserPermissions', optionalJwt, async (req, res) => {
+app.post('/api/changeUserPermissions', optionalJwt, requirePermission('settings'), async (req, res) => {
     const user_uid = req.body.user_uid;
     const permission = req.body.permission;
     const new_value = req.body.new_value;
@@ -1976,7 +2034,7 @@ app.post('/api/changeUserPermissions', optionalJwt, async (req, res) => {
     res.send({success: success});
 });
 
-app.post('/api/changeRolePermissions', optionalJwt, async (req, res) => {
+app.post('/api/changeRolePermissions', optionalJwt, requirePermission('settings'), async (req, res) => {
     const role = req.body.role;
     const permission = req.body.permission;
     const new_value = req.body.new_value;

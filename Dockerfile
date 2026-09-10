@@ -1,16 +1,17 @@
 # Fetching our utils
-FROM ubuntu:22.04 AS utils
+FROM ubuntu:24.04 AS utils
 ENV DEBIAN_FRONTEND=noninteractive
 # Use script due local build compability
 COPY docker-utils/*.sh .
 RUN chmod +x *.sh
 RUN sh ./ffmpeg-fetch.sh
 RUN sh ./fetch-twitchdownloader.sh
+RUN sh ./fetch-deno.sh
 
 
-# Create our Ubuntu 22.04 with node 16.14.2 (that specific version is required as per: https://stackoverflow.com/a/72855258/8088021)
-# Go to 20.04
-FROM ubuntu:22.04 AS base
+# Create our Ubuntu 24.04 with node 16.14.2 (that specific version is required as per: https://stackoverflow.com/a/72855258/8088021)
+# Ubuntu 24.04 ships Python 3.12, needed since yt-dlp deprecated Python 3.10 (shipped by 22.04)
+FROM ubuntu:24.04 AS base
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
 ENV UID=1000
@@ -23,9 +24,11 @@ ENV npm_config_cache=/app/.npm
 
 # Use NVM to get specific node version
 ENV NODE_VERSION=16.14.2
-RUN groupadd -g $GID $USER && useradd --system -m -g $USER --uid $UID $USER && \
+# Ubuntu 24.04 ships a default 'ubuntu' user occupying UID/GID 1000; remove it first
+RUN (userdel -r ubuntu 2>/dev/null || true) && \
+    groupadd -g $GID $USER && useradd --system -m -g $USER --uid $UID $USER && \
     apt update && \
-    apt install -y --no-install-recommends curl ca-certificates tzdata libicu70 libatomic1 && \
+    apt install -y --no-install-recommends curl ca-certificates tzdata libicu74 libatomic1 && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -39,7 +42,7 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 
 # Build frontend
 ARG BUILDPLATFORM
-FROM --platform=${BUILDPLATFORM} node:16 as frontend
+FROM --platform=${BUILDPLATFORM} node:16 AS frontend
 RUN npm install -g @angular/cli
 WORKDIR /build
 COPY [ "package.json", "package-lock.json", "angular.json", "tsconfig.json", "/build/" ]
@@ -52,7 +55,7 @@ RUN rm -rf node_modules
 
 
 # Install backend deps
-FROM base as backend
+FROM base AS backend
 WORKDIR /app
 COPY [ "backend/","/app/" ]
 RUN npm config set strict-ssl false && \
@@ -60,7 +63,6 @@ RUN npm config set strict-ssl false && \
     ls -al
 
 #FROM base as python
-# armv7 need build from source
 #WORKDIR /app
 #COPY docker-utils/GetTwitchDownloader.py .
 #RUN apt update && \
@@ -74,10 +76,7 @@ RUN npm config set strict-ssl false && \
 FROM base
 RUN npm install -g pm2 && \
     apt update && \
-    apt install -y --no-install-recommends gosu python3-minimal python-is-python3 python3-pip atomicparsley build-essential && \
-    pip install pycryptodomex && \
-    apt remove -y --purge build-essential && \
-    apt autoremove -y --purge && \
+    apt install -y --no-install-recommends gosu python3-minimal python-is-python3 python3-pycryptodome atomicparsley && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /app
@@ -85,6 +84,7 @@ WORKDIR /app
 COPY --chown=$UID:$GID --from=utils [ "/usr/local/bin/ffmpeg", "/usr/local/bin/ffmpeg" ]
 COPY --chown=$UID:$GID --from=utils [ "/usr/local/bin/ffprobe", "/usr/local/bin/ffprobe" ]
 COPY --chown=$UID:$GID --from=utils [ "/usr/local/bin/TwitchDownloaderCLI", "/usr/local/bin/TwitchDownloaderCLI"]
+COPY --chown=$UID:$GID --from=utils [ "/usr/local/bin/deno", "/usr/local/bin/deno"]
 COPY --chown=$UID:$GID --from=backend ["/app/","/app/"]
 COPY --chown=$UID:$GID --from=frontend [ "/build/backend/public/", "/app/public/" ]
 #COPY --chown=$UID:$GID --from=python ["/app/TwitchDownloaderCLI","/usr/local/bin/TwitchDownloaderCLI"]

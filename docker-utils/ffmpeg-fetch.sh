@@ -9,12 +9,6 @@ case $(uname -m) in
     ARCH=amd64;;
   aarch64)
     ARCH=arm64;;
-  armhf)
-    ARCH=armhf;;
-  armv7)
-    ARCH=armel;;
-  armv7l)
-    ARCH=armel;;
   *)
     echo "Unsupported architecture: $(uname -m)"
     exit 1
@@ -30,7 +24,7 @@ curl -o ffmpeg.txz \
     --retry 5 \
     --retry-delay 0 \
     --retry-max-time 40 \
-    "https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-5.1.1-${ARCH}-static.tar.xz"
+    "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-${ARCH}-static.tar.xz"
 mkdir /tmp/ffmpeg
 tar xf ffmpeg.txz -C /tmp/ffmpeg
 echo "(3/5) CLEANUP - Remove temp dependencies from ffmpeg obtain layer"

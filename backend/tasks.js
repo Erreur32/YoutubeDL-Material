@@ -12,6 +12,7 @@ const CONSTS = require('./consts');
 
 const fs = require('fs-extra');
 const path = require('path');
+const crypto = require('crypto');
 const scheduler = require('node-schedule');
 
 const TASKS = {
@@ -173,7 +174,16 @@ exports.executeRun = async (task_key) => {
     await db_api.updateRecord('tasks', {key: task_key}, {error: null})
     // don't set running to true when backup up DB as it will be stick "running" if restored
     if (task_key !== 'backup_local_db') await db_api.updateRecord('tasks', {key: task_key}, {running: true});
-    const data = await TASKS[task_key].run();
+
+    let data = null;
+    try {
+        data = await TASKS[task_key].run();
+    } catch(err) {
+        logger.error(`Task ${task_key} failed to run: ${err.message}`);
+        await db_api.updateRecord('tasks', {key: task_key}, {running: false, error: err.message});
+        return;
+    }
+
     await db_api.updateRecord('tasks', {key: task_key}, {data: TASKS[task_key]['confirm'] ? data : null, last_ran: Date.now()/1000, running: false});
     logger.verbose(`Finished running task ${task_key}`);
     const task_obj = await db_api.getRecord('tasks', {key: task_key});
@@ -193,7 +203,15 @@ exports.executeConfirm = async (task_key) => {
     await db_api.updateRecord('tasks', {key: task_key}, {confirming: true});
     const task_obj = await db_api.getRecord('tasks', {key: task_key});
     const data = task_obj['data'];
-    await TASKS[task_key].confirm(data);
+
+    try {
+        await TASKS[task_key].confirm(data);
+    } catch(err) {
+        logger.error(`Task ${task_key} failed to confirm: ${err.message}`);
+        await db_api.updateRecord('tasks', {key: task_key}, {confirming: false, error: err.message});
+        return;
+    }
+
     await db_api.updateRecord('tasks', {key: task_key}, {confirming: false, last_confirmed: Date.now()/1000, data: null});
     logger.verbose(`Finished confirming task ${task_key}`);
     await notifications_api.sendTaskNotification(task_obj, false);
@@ -286,8 +304,9 @@ async function rebuildDB() {
         
         const user_exists = await db_api.getRecord('users', {uid: user_to_add});
         if (!user_exists) {
-            await auth_api.registerUser(user_to_add, user_to_add, 'password');
-            logger.info(`Regenerated user ${user_to_add}`);
+            const temp_password = crypto.randomBytes(18).toString('base64');
+            await auth_api.registerUser(user_to_add, user_to_add, temp_password);
+            logger.warn(`Regenerated user '${user_to_add}' with a random temporary password: ${temp_password}. The user should log in and change their password immediately.`);
         }
         
         const user_channel_subs = await guessSubscriptions(false, path.join(usersFileFolder, user_to_add), user_to_add);
