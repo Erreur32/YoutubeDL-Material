@@ -365,4 +365,4 @@ exports.YTDL_ARGS_WITH_VALUES = new Set(YTDL_ARGS_WITH_VALUES);
 
 exports.ICON_URL = 'https://i.imgur.com/IKOlr0N.png';
 
-exports.CURRENT_VERSION = 'v4.3.2';
+exports.CURRENT_VERSION = 'v4.3.3';
