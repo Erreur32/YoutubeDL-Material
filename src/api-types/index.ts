@@ -8,6 +8,7 @@ export type { BaseChangePermissionsRequest } from './models/BaseChangePermission
 export type { binary } from './models/binary';
 export type { body_19 } from './models/body_19';
 export type { body_20 } from './models/body_20';
+export type { BootstrapResponse } from './models/BootstrapResponse';
 export type { Category } from './models/Category';
 export { CategoryRule } from './models/CategoryRule';
 export type { ChangeRolePermissionsRequest } from './models/ChangeRolePermissionsRequest';

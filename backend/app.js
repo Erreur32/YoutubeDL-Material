@@ -51,13 +51,18 @@ if (umask) process.umask(parseInt(umask));
 // check if debug mode
 let debugMode = process.env.YTDL_MODE === 'debug';
 
-const admin_token = '4241b401-7236-493e-92b5-b72696b9d853';
-
 // logging setup
 
 config_api.initialize();
 db_api.initialize(db, users_db);
 auth_api.initialize(db_api);
+
+// per-install API key used by the bundled web client to pass the apiKey gate below.
+// Generated once and persisted instead of a hardcoded constant, since a fixed value
+// baked into the public repo would be identical (and known) across every deployment.
+if (!config_api.getConfigItem('ytdl_internal_api_key')) {
+    config_api.setConfigItem('ytdl_internal_api_key', uuid());
+}
 
 // Set some defaults
 db.defaults(
@@ -610,11 +615,11 @@ app.use(function(req, res, next) {
 app.use(function(req, res, next) {
     if (!req.path.includes('/api/')) {
         next();
-    } else if (req.query.apiKey === admin_token) {
+    } else if (req.query.apiKey === config_api.getConfigItem('ytdl_internal_api_key')) {
         next();
     } else if (req.query.apiKey && config_api.getConfigItem('ytdl_use_api_key') && req.query.apiKey === config_api.getConfigItem('ytdl_api_key')) {
         next();
-    } else if (req.path.includes('/api/stream/') || req.path.includes('/api/thumbnail/') || req.path.includes('/api/rss') || req.path.includes('/api/telegramRequest')) {
+    } else if (req.path.includes('/api/stream/') || req.path.includes('/api/thumbnail/') || req.path.includes('/api/rss') || req.path.includes('/api/telegramRequest') || req.path.includes('/api/bootstrap')) {
         next();
     } else {
         logger.verbose(`Rejecting request - invalid API use for endpoint: ${req.path}. API key received: ${req.query.apiKey}`);
@@ -710,6 +715,15 @@ app.get('/api/config', function(req, res) {
     res.send({
         config_file: config_file,
         success: !!config_file
+    });
+});
+
+// unauthenticated bootstrap endpoint: hands the web client its per-install API key so it can
+// then pass the apiKey gate above (including for the /api/config call right above this one,
+// which is NOT whitelisted since it returns the full config file, secrets included)
+app.get('/api/bootstrap', function(req, res) {
+    res.send({
+        internal_api_key: config_api.getConfigItem('ytdl_internal_api_key')
     });
 });
 

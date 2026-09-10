@@ -9,6 +9,7 @@ import { DOCUMENT } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
+    BootstrapResponse,
     ChangeRolePermissionsRequest,
     ChangeUserPermissionsRequest,
     ConfigResponse,
@@ -132,7 +133,10 @@ export class PostsService implements CanActivate {
     sidepanel_mode: MatDrawerMode = 'over';
 
     // auth
-    auth_token = '4241b401-7236-493e-92b5-b72696b9d853';
+    // per-install API key, fetched from the unauthenticated /api/bootstrap endpoint in the
+    // constructor (not hardcoded: a fixed value baked into the public repo would be identical
+    // across every deployment)
+    auth_token: string = null;
     httpOptions: {
         params: HttpParams
     };
@@ -191,28 +195,35 @@ export class PostsService implements CanActivate {
 
         const redirect_not_required = window.location.href.includes('/player') || window.location.href.includes('/login');
 
-        // get config
-        this.getConfig().subscribe(res => {
-            const result = !this.debugMode ? res['config_file'] : res;
-            if (result) {
-                this.config = result['YoutubeDLMaterial'];
-                this.titleService.setTitle(this.config['Extra']['title_top']);
-                if (this.config['Advanced']['multi_user_mode']) {
-                    this.checkAdminCreationStatus();
-                    // login stuff
-                    if (localStorage.getItem('jwt_token') && localStorage.getItem('jwt_token') !== 'null') {
-                        this.token = localStorage.getItem('jwt_token');
-                        this.httpOptions.params = this.httpOptions.params.set('jwt', this.token);
-                        this.jwtAuth();
-                    } else if (redirect_not_required) {
-                        this.setInitialized();
+        // fetch this install's per-instance API key from the unauthenticated bootstrap endpoint,
+        // then rebuild httpOptions with it before making any other (apiKey-gated) call, starting with config
+        this.http.get<BootstrapResponse>(this.path + 'bootstrap').subscribe(bootstrap_res => {
+            this.auth_token = bootstrap_res.internal_api_key;
+            this.resetHttpParams();
+
+            // get config
+            this.getConfig().subscribe(res => {
+                const result = !this.debugMode ? res['config_file'] : res;
+                if (result) {
+                    this.config = result['YoutubeDLMaterial'];
+                    this.titleService.setTitle(this.config['Extra']['title_top']);
+                    if (this.config['Advanced']['multi_user_mode']) {
+                        this.checkAdminCreationStatus();
+                        // login stuff
+                        if (localStorage.getItem('jwt_token') && localStorage.getItem('jwt_token') !== 'null') {
+                            this.token = localStorage.getItem('jwt_token');
+                            this.httpOptions.params = this.httpOptions.params.set('jwt', this.token);
+                            this.jwtAuth();
+                        } else if (redirect_not_required) {
+                            this.setInitialized();
+                        } else {
+                            this.sendToLogin();
+                        }
                     } else {
-                        this.sendToLogin();
+                        this.setInitialized();
                     }
-                } else {
-                    this.setInitialized();
                 }
-            }
+            });
         });
 
         this.reload_config.subscribe(yes_reload => {
