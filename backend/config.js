@@ -1,6 +1,7 @@
 const logger = require('./logger');
 
 const fs = require('fs');
+const path = require('path');
 const { BehaviorSubject } = require('rxjs');
 
 exports.CONFIG_ITEMS = require('./consts.js')['CONFIG_ITEMS'];
@@ -27,6 +28,7 @@ function ensureConfigItemsExist() {
 function ensureConfigFileExists() {
     if (!fs.existsSync(configPath)) {
         logger.info('Cannot find config file. Creating one with default values...');
+        fs.mkdirSync(path.dirname(configPath), { recursive: true });
         fs.writeFileSync(configPath, JSON.stringify(DEFAULT_CONFIG, null, 2));
     }
 }
@@ -73,6 +75,7 @@ exports.configExistsCheck = () => {
 */
 exports.getConfigFile = () => {
     try {
+        ensureConfigFileExists();
         let raw_data = fs.readFileSync(configPath);
         let parsed_data = JSON.parse(raw_data);
         return parsed_data;
