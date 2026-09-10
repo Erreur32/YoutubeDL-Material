@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # THANK YOU TALULAH (https://github.com/nottalulah) for your help in figuring this out
 # and also optimizing some code with this commit.

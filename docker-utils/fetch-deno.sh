@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # Deno is required by yt-dlp to solve the JavaScript challenges YouTube now presents
 # (see https://github.com/yt-dlp/yt-dlp/wiki/EJS).
