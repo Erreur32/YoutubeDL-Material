@@ -8,7 +8,7 @@ const utils = require('./utils');
 const logger = require('./logger');
 const CONSTS = require('./consts');
 
-const debugMode = process.env.YTDL_MODE === 'debug';
+const debugMode = process.env.YTDL_MODE === 'dev';
 
 const db_api = require('./db');
 const downloader_api = require('./downloader');

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha test --exit -s 1000",
     "start": "pm2-runtime --raw pm2.config.js",
-    "debug": "YTDL_MODE=debug node app.js"
+    "dev": "YTDL_MODE=dev node app.js"
   },
   "repository": {
     "type": "git",

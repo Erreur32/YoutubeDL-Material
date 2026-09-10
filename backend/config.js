@@ -6,9 +6,9 @@ const { BehaviorSubject } = require('rxjs');
 exports.CONFIG_ITEMS = require('./consts.js')['CONFIG_ITEMS'];
 exports.descriptors = {}; // to get rid of file locks when needed, TODO: move to youtube-dl.js
 
-const debugMode = process.env.YTDL_MODE === 'debug';
-
-let configPath = debugMode ? '../src/assets/default.json' : 'appdata/default.json';
+// config always lives under appdata/ (gitignored) so dev/test secrets (e.g. the bootstrap
+// internal_API_key) never end up written into a tracked frontend asset like src/assets/default.json
+let configPath = 'appdata/default.json';
 exports.config_updated = new BehaviorSubject();
 
 exports.initialize = () => {

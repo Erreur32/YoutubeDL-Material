@@ -49,7 +49,7 @@ const umask = process.env.YTDL_UMASK;
 if (umask) process.umask(parseInt(umask));
 
 // check if debug mode
-let debugMode = process.env.YTDL_MODE === 'debug';
+let debugMode = process.env.YTDL_MODE === 'dev';
 
 // logging setup
 
@@ -114,7 +114,7 @@ let updaterStatus = null;
 
 const concurrentStreams = {};
 
-if (debugMode) logger.info('YTDL-Material in debug mode!');
+if (debugMode) logger.info('YTDL-Material in dev mode!');
 
 // check if just updated
 const just_updated = fs.existsSync('restart_update.json');

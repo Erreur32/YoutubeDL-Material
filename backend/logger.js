@@ -1,6 +1,6 @@
 const winston = require('winston');
 
-let debugMode = process.env.YTDL_MODE === 'debug';
+let debugMode = process.env.YTDL_MODE === 'dev';
 
 const defaultFormat = winston.format.printf(({ level, message, label, timestamp }) => {
     return `${timestamp} ${level.toUpperCase()}: ${message}`;
