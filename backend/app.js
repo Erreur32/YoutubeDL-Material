@@ -19,6 +19,8 @@ const read_last_lines = require('read-last-lines');
 const ps = require('ps-node');
 const Feed = require('feed').Feed;
 const session = require('express-session');
+const rateLimit = require('express-rate-limit');
+const lusca = require('lusca');
 
 const logger = require('./logger');
 const config_api = require('./config.js');
@@ -164,7 +166,7 @@ app.use(bodyParser.json());
 
 // use passport
 app.use(auth_api.passport.initialize());
-app.use(session({ secret: uuid(), resave: true, saveUninitialized: true }))
+app.use(session({ secret: uuid(), resave: true, saveUninitialized: true, cookie: { secure: 'auto', sameSite: 'lax' } }))
 app.use(auth_api.passport.session());
 
 // actual functions
@@ -338,6 +340,12 @@ async function downloadReleaseFiles(tag) {
                                     'youtubedl-material/appdata/*']
         logger.info(`Installing update ${tag}...`)
 
+        // rejects zip entries that would extract outside of the intended base directory (zip slip)
+        const isPathInside = (base, target) => {
+            const relative = path.relative(base, target);
+            return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+        }
+
         // downloads new package.json and adds new public dir files from the downloaded zip
         fs.createReadStream(path.join(__dirname, `youtubedl-material-release-${tag}.zip`)).pipe(unzipper.Parse())
         .on('entry', function (entry) {
@@ -346,17 +354,23 @@ async function downloadReleaseFiles(tag) {
             if (!is_dir && fileName.includes('youtubedl-material/public/')) {
                 // get public folder files
                 const actualFileName = fileName.replace('youtubedl-material/public/', '');
-                if (actualFileName.length !== 0 && actualFileName.substring(actualFileName.length-1, actualFileName.length) !== '/') {
+                const destPath = path.join(__dirname, 'public', actualFileName);
+                if (actualFileName.length !== 0 && actualFileName.substring(actualFileName.length-1, actualFileName.length) !== '/' && isPathInside(path.join(__dirname, 'public'), destPath)) {
                     fs.ensureDirSync(path.join(__dirname, 'public', path.dirname(actualFileName)));
-                    entry.pipe(fs.createWriteStream(path.join(__dirname, 'public', actualFileName)));
+                    entry.pipe(fs.createWriteStream(destPath));
                 } else {
                     entry.autodrain();
                 }
             } else if (!is_dir && !replace_ignore_list.includes(fileName)) {
                 // get package.json
                 const actualFileName = fileName.replace('youtubedl-material/', '');
-                logger.verbose('Downloading file ' + actualFileName);
-                entry.pipe(fs.createWriteStream(path.join(__dirname, actualFileName)));
+                const destPath = path.join(__dirname, actualFileName);
+                if (isPathInside(__dirname, destPath)) {
+                    logger.verbose('Downloading file ' + actualFileName);
+                    entry.pipe(fs.createWriteStream(destPath));
+                } else {
+                    entry.autodrain();
+                }
             } else {
                 entry.autodrain();
             }
@@ -612,6 +626,16 @@ app.use(function(req, res, next) {
     }
 });
 
+// rate limits all API routes to mitigate brute-force/abuse
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => req.path.includes('/api/stream/') || req.path.includes('/api/thumbnail/')
+});
+app.use('/api/', apiLimiter);
+
 app.use(function(req, res, next) {
     if (!req.path.includes('/api/')) {
         next();
@@ -622,9 +646,22 @@ app.use(function(req, res, next) {
     } else if (req.path.includes('/api/stream/') || req.path.includes('/api/thumbnail/') || req.path.includes('/api/rss') || req.path.includes('/api/telegramRequest') || req.path.includes('/api/bootstrap')) {
         next();
     } else {
-        logger.verbose(`Rejecting request - invalid API use for endpoint: ${req.path}. API key received: ${req.query.apiKey}`);
+        logger.verbose(`Rejecting request - invalid API use for endpoint: ${req.path}. API key received: ${req.query.apiKey ? '[redacted]' : 'undefined'}`);
         req.socket.end();
     }
+});
+
+// CSRF protection for state-changing requests that rely solely on the session cookie.
+// Requests already carrying a valid apiKey/JWT (an out-of-band secret unknown to an attacker site)
+// and the Telegram webhook (server-to-server, no cookie/session involved) are exempt.
+const csrfProtection = lusca.csrf();
+app.use(function(req, res, next) {
+    const has_valid_api_key = req.query.apiKey && (req.query.apiKey === config_api.getConfigItem('ytdl_internal_api_key') ||
+        (config_api.getConfigItem('ytdl_use_api_key') && req.query.apiKey === config_api.getConfigItem('ytdl_api_key')));
+    if (has_valid_api_key || req.query.jwt || req.path.includes('/api/telegramRequest')) {
+        return next();
+    }
+    return csrfProtection(req, res, next);
 });
 
 app.use(compression());
@@ -2161,7 +2198,7 @@ app.get('/api/rss', async function (req, res) {
             contributor: [],
             date: file.timestamp,
             // https://stackoverflow.com/a/45415677/8088021
-            image: file.thumbnailURL.replace('&', '&amp;')
+            image: file.thumbnailURL.replace(/&/g, '&amp;')
         });
       });
     res.send(feed.rss2());

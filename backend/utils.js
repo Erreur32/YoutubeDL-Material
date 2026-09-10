@@ -394,6 +394,21 @@ exports.restartServer = async (is_update = false) => {
     process.exit(1);
 }
 
+// returns a copy of a youtube-dl/yt-dlp args array with sensitive values (e.g. passwords) replaced, for safe logging
+exports.redactArgs = (args) => {
+    const sensitive_flags = ['--password'];
+    const redacted = [];
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        redacted.push(arg);
+        if (sensitive_flags.includes(arg) && i + 1 < args.length) {
+            redacted.push('[redacted]');
+            i++;
+        }
+    }
+    return redacted;
+}
+
 // adds or replaces args according to the following rules:
 //  - if it already exists and has value, then replace both arg and value
 //  - if already exists and doesn't have value, ignore
@@ -422,7 +437,7 @@ exports.injectArgs = (original_args, new_args) => {
         }
     } catch (err) {
         logger.warn(err);
-        logger.warn(`Failed to inject args (${new_args}) into (${original_args})`);
+        logger.warn(`Failed to inject args (${exports.redactArgs(new_args)}) into (${exports.redactArgs(original_args)})`);
     }
 
     return updated_args;

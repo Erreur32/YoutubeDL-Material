@@ -552,7 +552,7 @@ exports.generateArgs = async (url, type, options, user_uid = null, simulated = f
     // filter out incompatible args
     downloadConfig = filterArgs(downloadConfig, is_audio);
 
-    if (!simulated) logger.verbose(`${default_downloader} args being used: ${downloadConfig.join(',')}`);
+    if (!simulated) logger.verbose(`${default_downloader} args being used: ${utils.redactArgs(downloadConfig).join(',')}`);
     return downloadConfig;
 }
 
