@@ -12,10 +12,10 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Set hash
         id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
       - name: create-json
         id: create-json
         uses: jsdaniell/create-json@6c509494d7b009b842fb0a158852ba244920bc38 # v1.2.2

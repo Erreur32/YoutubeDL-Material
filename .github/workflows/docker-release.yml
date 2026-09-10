@@ -15,6 +15,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
     steps:
       - name: checkout code
@@ -22,11 +24,11 @@ jobs:
 
       - name: Set hash
         id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
       - name: create-json
         id: create-json
@@ -40,9 +42,9 @@ jobs:
         id: tags
         run: |
           if [ "${{ github.event.inputs.tags }}" != "" ]; then
-            echo "::set-output name=tags::${{ github.event.inputs.tags }}"
+            echo "tags=${{ github.event.inputs.tags }}" >> "$GITHUB_OUTPUT"
           elif [ ${{ github.event.action }} == "release" ]; then
-            echo "::set-output name=tags::${{ github.event.release.tag_name }}"
+            echo "tags=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown workflow trigger: ${{ github.event.action }}! Cannot determine default tag."
             exit 1
@@ -64,10 +66,10 @@ jobs:
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Login to DockerHub (avoids anonymous pull rate limits for buildx/QEMU images)
-        if: secrets.DOCKERHUB_USERNAME != ''
+        if: env.DOCKERHUB_USERNAME != ''
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
