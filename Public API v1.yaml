@@ -2581,7 +2581,7 @@ components:
       properties:
         new_api_key:
           type: string
-          example: 4241b401-7236-493e-92b5-b72696b9d853
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
     DeleteMp3Mp4Request:
       required:
         - uid

@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # THANK YOU TALULAH (https://github.com/nottalulah) for your help in figuring this out
 # and also optimizing some code with this commit.
@@ -29,5 +30,7 @@ curl -o twitchdownloader.zip \
 unzip twitchdownloader.zip
 chmod +x TwitchDownloaderCLI
 echo "(3/5) Smoke test"
-./TwitchDownloaderCLI --help
+# --help exits with a non-zero status by design (CommandLineParser convention),
+# so it can't be checked under set -e; only used here to confirm the binary runs.
+./TwitchDownloaderCLI --help || true
 cp ./TwitchDownloaderCLI /usr/local/bin/TwitchDownloaderCLI

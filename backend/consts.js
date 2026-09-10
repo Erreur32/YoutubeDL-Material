@@ -102,6 +102,12 @@ exports.CONFIG_ITEMS = {
         'key': 'ytdl_api_key',
         'path': 'YoutubeDLMaterial.API.API_key'
     },
+    // internal, not exposed in the Settings UI — per-install secret used by the bundled
+    // web client itself to pass the apiKey gate, generated once on first startup (app.js)
+    'ytdl_internal_api_key': {
+        'key': 'ytdl_internal_api_key',
+        'path': 'YoutubeDLMaterial.API.internal_API_key'
+    },
     'ytdl_use_youtube_api': {
         'key': 'ytdl_use_youtube_api',
         'path': 'YoutubeDLMaterial.API.use_youtube_API'

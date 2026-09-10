@@ -146,9 +146,13 @@ async function downloadLatestYoutubeDLBinaryGeneric(youtubedl_fork, new_version,
 
 exports.getLatestUpdateVersion = async (youtubedl_fork) => {
     const tags_url = exports.youtubedl_forks[youtubedl_fork]['tags_url'];
+    // GitHub's API rejects requests without a User-Agent header (403 Forbidden).
+    // Anonymous requests are also capped at 60/hr per IP (shared across all GitHub Actions
+    // runners), so an optional token raises that to 5000/hr when available.
+    const headers = {'User-Agent': 'YoutubeDL-Material', 'Accept': 'application/vnd.github+json'};
+    if (process.env.GITHUB_TOKEN) headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
     return new Promise(resolve => {
-        // GitHub's API rejects requests without a User-Agent header (403 Forbidden)
-        fetch(tags_url, {method: 'Get', headers: {'User-Agent': 'YoutubeDL-Material', 'Accept': 'application/vnd.github+json'}})
+        fetch(tags_url, {method: 'Get', headers: headers})
         .then(async res => {
             if (!res.ok) {
                 const body = await res.text();
