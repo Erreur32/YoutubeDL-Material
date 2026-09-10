@@ -1,5 +1,7 @@
 # YoutubeDL-Material
 
+[![Tests badge](https://github.com/Erreur32/YoutubeDL-Material/actions/workflows/mocha.yml/badge.svg)](https://github.com/Erreur32/YoutubeDL-Material/actions/workflows/mocha.yml)
+[![Docker badge](https://github.com/Erreur32/YoutubeDL-Material/actions/workflows/docker.yml/badge.svg)](https://github.com/Erreur32/YoutubeDL-Material/actions/workflows/docker.yml)
 [![Heroku deploy badge](https://img.shields.io/badge/%E2%86%91_Deploy_to-Heroku-7056bf.svg)](https://heroku.com/deploy?template=https://github.com/Erreur32/YoutubeDL-Material)
 [![GitHub issues badge](https://img.shields.io/github/issues/Erreur32/YoutubeDL-Material)](https://github.com/Erreur32/YoutubeDL-Material/issues)
 [![License badge](https://img.shields.io/github/license/Erreur32/YoutubeDL-Material)](https://github.com/Erreur32/YoutubeDL-Material/blob/master/LICENSE.md)
@@ -103,6 +105,8 @@ If you're on a Synology NAS, unRAID, Raspberry Pi 4 or any other possible specia
 
 If you are looking to setup YoutubeDL-Material with Docker, this section is for you. And you're in luck! Docker setup is quite simple.
 
+The image is published to the [GitHub Container Registry](https://github.com/Erreur32/YoutubeDL-Material/pkgs/container/youtubedl-material) (`ghcr.io/erreur32/youtubedl-material`).
+
 1. Run `curl -L https://github.com/Erreur32/YoutubeDL-Material/releases/latest/download/docker-compose.yml -o docker-compose.yml` to download the latest Docker Compose, or go to the [releases](https://github.com/Erreur32/YoutubeDL-Material/releases/) page to grab the version you'd like.
 2. Run `docker-compose pull`. This will download the official YoutubeDL-Material docker image.
 3. Run `docker-compose up` to start it up. If successful, it should say "HTTP(S): Started on port 17443" or something similar. This tells you the *container-internal* port of the application. Please check your `docker-compose.yml` file for the *external* port. If you downloaded the file as described above, it defaults to **8998**.
@@ -148,7 +152,8 @@ If you're interested in translating the app into a new language, check out the [
 
 ## Authors
 
-* **Isaac Grynsztein** (me!) - *Initial work*
+* **Isaac Grynsztein** ([Tzahi12345](https://github.com/Tzahi12345)) - *Original creator*
+* **Erreur32** - *Current maintainer*
 
 Official translators:
 
