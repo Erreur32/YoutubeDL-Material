@@ -1,10 +1,8 @@
 # YoutubeDL-Material
 
-[![Docker pulls badge](https://img.shields.io/docker/pulls/tzahi12345/youtubedl-material.svg)](https://hub.docker.com/r/tzahi12345/youtubedl-material)
-[![Docker image size badge](https://img.shields.io/docker/image-size/tzahi12345/youtubedl-material?sort=date)](https://hub.docker.com/r/tzahi12345/youtubedl-material)
-[![Heroku deploy badge](https://img.shields.io/badge/%E2%86%91_Deploy_to-Heroku-7056bf.svg)](https://heroku.com/deploy?template=https://github.com/Tzahi12345/YoutubeDL-Material)
-[![GitHub issues badge](https://img.shields.io/github/issues/Tzahi12345/YoutubeDL-Material)](https://github.com/Tzahi12345/YoutubeDL-Material/issues)
-[![License badge](https://img.shields.io/github/license/Tzahi12345/YoutubeDL-Material)](https://github.com/Tzahi12345/YoutubeDL-Material/blob/master/LICENSE.md)
+[![Heroku deploy badge](https://img.shields.io/badge/%E2%86%91_Deploy_to-Heroku-7056bf.svg)](https://heroku.com/deploy?template=https://github.com/Erreur32/YoutubeDL-Material)
+[![GitHub issues badge](https://img.shields.io/github/issues/Erreur32/YoutubeDL-Material)](https://github.com/Erreur32/YoutubeDL-Material/issues)
+[![License badge](https://img.shields.io/github/license/Erreur32/YoutubeDL-Material)](https://github.com/Erreur32/YoutubeDL-Material/blob/master/LICENSE.md)
 
 YoutubeDL-Material is a Material Design frontend for [youtube-dl](https://rg3.github.io/youtube-dl/). It's coded using [Angular 15](https://angular.io/) for the frontend, and [Node.js](https://nodejs.org/) on the backend.
 
@@ -67,7 +65,7 @@ sudo yum install nodejs youtube-dl ffmpeg ffmpeg-devel
 
 If you are using Docker, skip to the [Docker](#Docker) section. Otherwise, continue:
 
-1. First, download the [latest release](https://github.com/Tzahi12345/YoutubeDL-Material/releases/latest)!
+1. First, download the [latest release](https://github.com/Erreur32/YoutubeDL-Material/releases/latest)!
 
 2. Drag the `youtubedl-material` directory to an easily accessible directory. Navigate to the `appdata` folder and edit the `default.json` file.
 
@@ -105,7 +103,7 @@ If you're on a Synology NAS, unRAID, Raspberry Pi 4 or any other possible specia
 
 If you are looking to setup YoutubeDL-Material with Docker, this section is for you. And you're in luck! Docker setup is quite simple.
 
-1. Run `curl -L https://github.com/Tzahi12345/YoutubeDL-Material/releases/latest/download/docker-compose.yml -o docker-compose.yml` to download the latest Docker Compose, or go to the [releases](https://github.com/Tzahi12345/YoutubeDL-Material/releases/) page to grab the version you'd like.
+1. Run `curl -L https://github.com/Erreur32/YoutubeDL-Material/releases/latest/download/docker-compose.yml -o docker-compose.yml` to download the latest Docker Compose, or go to the [releases](https://github.com/Erreur32/YoutubeDL-Material/releases/) page to grab the version you'd like.
 2. Run `docker-compose pull`. This will download the official YoutubeDL-Material docker image.
 3. Run `docker-compose up` to start it up. If successful, it should say "HTTP(S): Started on port 17443" or something similar. This tells you the *container-internal* port of the application. Please check your `docker-compose.yml` file for the *external* port. If you downloaded the file as described above, it defaults to **8998**.
 4. Make sure you can connect to the specified URL + *external* port, and if so, you are done!

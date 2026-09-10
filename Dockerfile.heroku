@@ -1,2 +1,2 @@
-FROM tzahi12345/youtubedl-material:latest
+FROM ghcr.io/erreur32/youtubedl-material:latest
 CMD [ "npm", "start" ]

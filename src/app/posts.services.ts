@@ -719,11 +719,11 @@ export class PostsService implements CanActivate {
 
     // gets tag of the latest version of youtubedl-material
     getLatestGithubRelease() {
-        return this.http.get('https://api.github.com/repos/tzahi12345/youtubedl-material/releases/latest');
+        return this.http.get('https://api.github.com/repos/Erreur32/YoutubeDL-Material/releases/latest');
     }
 
     getAvailableRelease() {
-        return this.http.get('https://api.github.com/repos/tzahi12345/youtubedl-material/releases');
+        return this.http.get('https://api.github.com/repos/Erreur32/YoutubeDL-Material/releases');
     }
 
     afterLogin(user, token, permissions, available_permissions) {
