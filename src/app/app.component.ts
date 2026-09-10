@@ -126,6 +126,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.postsService.getVersionInfo().subscribe(res => {
       this.postsService.version_info = res['version_info'];
+      this.postsService.downloader_info = res['downloader_info'];
     });
   }
 

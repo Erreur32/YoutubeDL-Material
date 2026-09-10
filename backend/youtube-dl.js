@@ -105,6 +105,14 @@ exports.checkForYoutubeDLUpdate = async () => {
     }
 }
 
+// returns the tracked version for every downloader fork that has been downloaded so far,
+// plus which one is currently selected in the config
+exports.getCurrentVersionInfo = () => {
+    const selected_fork = config_api.getConfigItem('ytdl_default_downloader');
+    const forks = fs.existsSync(CONSTS.DETAILS_BIN_PATH) ? fs.readJSONSync(CONSTS.DETAILS_BIN_PATH) : {};
+    return {selected_fork: selected_fork, forks: forks};
+}
+
 exports.updateYoutubeDL = async (latest_update_version, custom_output_path = null) => {
     await fs.ensureDir(path.join('appdata', 'bin'));
     const default_downloader = config_api.getConfigItem('ytdl_default_downloader');

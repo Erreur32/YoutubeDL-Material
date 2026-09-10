@@ -169,6 +169,7 @@ export class PostsService implements CanActivate {
     sidenav = null;
     locale = isoLangs['en'];
     version_info = null;
+    downloader_info = null;
 
     constructor(private http: HttpClient, private router: Router, @Inject(DOCUMENT) private document: Document,
                 public snackBar: MatSnackBar, private titleService: Title) {
