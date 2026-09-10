@@ -619,7 +619,9 @@ async function checkDownloadPercent(download_uid) {
                     if (file_stats && file_stats.size) {
                         sum_size += file_stats.size;
                     }
-                } catch (e) {}
+                } catch (e) {
+                    // file may not exist yet while the download is still in progress
+                }
             }
             
             const percent_complete = (sum_size/resulting_file_size * 100).toFixed(2);

@@ -429,7 +429,7 @@ function getToken(queryParams) {
   } else {
     return null;
   }
-};
+}
 
 function generateUserObject(userid, username, hash, auth_method = 'internal') {
   let new_user = {

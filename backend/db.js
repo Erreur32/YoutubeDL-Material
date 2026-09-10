@@ -74,7 +74,6 @@ const tables_list = Object.keys(tables);
 let using_local_db = null; 
 
 function setDB(input_db, input_users_db) {
-    db = input_db; users_db = input_users_db;
     exports.db = input_db;
     exports.users_db = input_users_db
 }
@@ -771,7 +770,7 @@ exports.transferDB = async (local_to_remote) => {
             return false;
         }
     }
-    success = true;
+    let success = true;
 
     logger.debug('Clearing new database before transfer...');
 

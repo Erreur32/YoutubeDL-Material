@@ -570,7 +570,7 @@ function loadConfigValues() {
     allowSubscriptions = config_api.getConfigItem('ytdl_allow_subscriptions');
 
     if (!useDefaultDownloadingAgent && validDownloadingAgents.indexOf(customDownloadingAgent) !== -1 ) {
-        logger.info(`Using non-default downloading agent \'${customDownloadingAgent}\'`)
+        logger.info(`Using non-default downloading agent '${customDownloadingAgent}'`)
     } else {
         customDownloadingAgent = null;
     }
@@ -1063,8 +1063,7 @@ app.post('/api/enableSharing', optionalJwt, async (req, res) => {
             await db_api.updateRecord('files', {uid: uid}, {sharingEnabled: true})
         } else if (is_playlist) {
             await db_api.updateRecord(`playlists`, {id: uid}, {sharingEnabled: true});
-        } else if (false) {
-            // TODO: Implement.
+        } else if (false) { // eslint-disable-line no-constant-condition -- TODO: Implement.
         } else {
             // error
             success = false;
@@ -2142,7 +2141,7 @@ app.post('/api/telegramRequest', async (req, res) => {
         return;
     }
     const text = req.body.message.text;
-    const regex_exp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+    const regex_exp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi;
     const url_regex = new RegExp(regex_exp);
     if (text.match(url_regex)) {
         downloader_api.createDownload(text, 'video', {}, req.query.user_uid ? req.query.user_uid : null);

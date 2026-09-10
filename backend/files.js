@@ -269,7 +269,7 @@ exports.deleteFile = async (uid, blacklistMode = false) => {
                 config_api.descriptors[uid][i].destroy();
             }
         } catch(e) {
-
+            // descriptor may already be destroyed
         }
     }
 
