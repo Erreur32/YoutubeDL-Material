@@ -100,9 +100,13 @@ export class SettingsComponent implements OnInit {
         // sets new config as old config
         this.initial_config = JSON.parse(JSON.stringify(this.new_config));
         this.postsService.reload_config.next(true);
+        this.postsService.openSnackBar($localize`Settings saved successfully!`);
+      } else {
+        this.postsService.openSnackBar($localize`Failed to save settings!`);
       }
     }, () => {
       console.error('Failed to save config!');
+      this.postsService.openSnackBar($localize`Failed to save settings!`);
     })
   }
 
