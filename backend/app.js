@@ -596,7 +596,13 @@ const DEV_ORIGIN_ALLOWLIST = [
 
 function getOrigin(req) {
     if (process.env.CODESPACES) return `https://${process.env.CODESPACE_NAME}-4200.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
-    if (debugMode && req && DEV_ORIGIN_ALLOWLIST.includes(req.headers.origin)) return req.headers.origin;
+    // Returns the matching allowlist entry itself (never req.headers.origin) so the
+    // response header is always built from a hardcoded literal, not request data.
+    if (debugMode && req) {
+        for (const allowed_origin of DEV_ORIGIN_ALLOWLIST) {
+            if (req.headers.origin === allowed_origin) return allowed_origin;
+        }
+    }
     return url_domain.origin;
 }
 
