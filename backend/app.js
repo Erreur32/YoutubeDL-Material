@@ -110,8 +110,12 @@ let useDefaultDownloadingAgent = null;
 let customDownloadingAgent = null;
 let allowSubscriptions = null;
 
-// other needed values
-let url_domain = null;
+// other needed values. Never initialize this as the `null` literal: the CORS
+// middleware below reflects `url_domain.origin` back as Access-Control-Allow-Origin,
+// and CodeQL flags any value that could resolve to the string "null" here since
+// the "null" Origin is trivially forgeable by an attacker (sandboxed iframes, etc.)
+// and combined with Access-Control-Allow-Credentials: true would leak credentials.
+let url_domain = new URL('http://localhost');
 let updaterStatus = null;
 
 const concurrentStreams = {};
@@ -583,8 +587,26 @@ function loadConfigValues() {
     utils.updateLoggerLevel(logger_level);
 }
 
-function getOrigin() {
+// in dev mode the frontend is served by a separate `ng serve` process, on the default
+// port (4200) or the port used by dev-start.sh (4310). Only ever allow this fixed,
+// hardcoded set of known-safe local origins - never reflect an arbitrary
+// request-supplied Origin header back, since combined with
+// Access-Control-Allow-Credentials that would let any external site make
+// credentialed requests against this API (CORS credential leak).
+const DEV_ORIGIN_ALLOWLIST = [
+    'http://localhost:4200', 'http://127.0.0.1:4200',
+    'http://localhost:4310', 'http://127.0.0.1:4310'
+];
+
+function getOrigin(req) {
     if (process.env.CODESPACES) return `https://${process.env.CODESPACE_NAME}-4200.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
+    // Returns the matching allowlist entry itself (never req.headers.origin) so the
+    // response header is always built from a hardcoded literal, not request data.
+    if (debugMode && req) {
+        for (const allowed_origin of DEV_ORIGIN_ALLOWLIST) {
+            if (req.headers.origin === allowed_origin) return allowed_origin;
+        }
+    }
     return url_domain.origin;
 }
 
@@ -617,8 +639,12 @@ async function startYoutubeDL() {
 }
 
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Origin", getOrigin());
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-XSRF-TOKEN");
+    res.header("Access-Control-Allow-Origin", getOrigin(req));
+    // required so the browser stores the XSRF-TOKEN cookie set by lusca and sends it back
+    // on subsequent requests, even though the frontend calls the API via an absolute URL
+    // (different origin from Angular's point of view, so cookies are otherwise dropped)
+    res.header("Access-Control-Allow-Credentials", "true");
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
     } else {
@@ -654,7 +680,11 @@ app.use(function(req, res, next) {
 // CSRF protection for state-changing requests that rely solely on the session cookie.
 // Requests already carrying a valid apiKey/JWT (an out-of-band secret unknown to an attacker site)
 // and the Telegram webhook (server-to-server, no cookie/session involved) are exempt.
-const csrfProtection = lusca.csrf();
+// `angular: true` makes lusca set the XSRF-TOKEN cookie and read the X-XSRF-TOKEN header.
+// NOTE: Angular's built-in XSRF interceptor only attaches that header for relative-URL
+// requests; this frontend always calls the API via an absolute URL, so a custom
+// interceptor (XsrfInterceptor) sets the header manually - see src/app/app.module.ts.
+const csrfProtection = lusca.csrf({ angular: true });
 app.use(function(req, res, next) {
     const has_valid_api_key = req.query.apiKey && (req.query.apiKey === config_api.getConfigItem('ytdl_internal_api_key') ||
         (config_api.getConfigItem('ytdl_use_api_key') && req.query.apiKey === config_api.getConfigItem('ytdl_api_key')));
@@ -2220,9 +2250,15 @@ app.use(function(req, res, next) {
 
     let index_path = path.join(__dirname, 'public', 'index.html');
 
+    if (!fs.existsSync(index_path)) {
+        // happens when the frontend hasn't been built into backend/public yet (e.g. running
+        // the Angular dev server separately with `ng serve` instead of `npm run build`)
+        return res.status(503).send('Frontend build not found. Run `npm run build` at the project root, or use the Angular dev server instead of hitting the backend port directly.');
+    }
+
     res.setHeader('Content-Type', 'text/html');
 
-    fs.createReadStream(index_path).pipe(res);
+    fs.createReadStream(index_path).on('error', next).pipe(res);
 
 });
 

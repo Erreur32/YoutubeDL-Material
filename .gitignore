@@ -84,3 +84,4 @@ backend/audio/
 backend/video/
 backend/subscriptions/
 backend/users/
+.dev-logs/

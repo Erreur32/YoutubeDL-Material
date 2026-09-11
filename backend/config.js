@@ -251,7 +251,7 @@ const DEFAULT_CONFIG = {
         "slack_webhook_URL": "",
       },
       "Themes": {
-        "default_theme": "default",
+        "default_theme": "dark",
         "allow_theme_change": true
       },
       "Subscriptions": {

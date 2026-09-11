@@ -44,6 +44,7 @@ export class MainComponent implements OnInit {
   exists = '';
   percentDownloaded: number;
   autoStartDownload = false;
+  emptyPlaylistsHint = 'No playlists available. Create one from your downloading files by clicking the blue plus button.';
 
   // global settings
   fileManagerEnabled = false;

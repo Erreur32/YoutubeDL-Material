@@ -136,6 +136,29 @@
   color: black;
 }
 
+.playlist-name-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  padding: 4px 8px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, .75), rgba(0, 0, 0, 0));
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .15s ease;
+  pointer-events: none;
+}
+
+.playlist-name-overlay--visible {
+  opacity: 1;
+}
+
 .download-time {
   position: absolute;
   top: 1px;

@@ -39,7 +39,7 @@
       "generate_NFO_files": false
     },
     "Themes": {
-      "default_theme": "default",
+      "default_theme": "dark",
       "allow_theme_change": true
     },
     "Subscriptions": {

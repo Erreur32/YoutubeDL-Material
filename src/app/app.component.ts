@@ -36,6 +36,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   @HostBinding('class') componentCssClass;
   THEMES_CONFIG = THEMES_CONFIG;
+  themeKeys = Object.keys(THEMES_CONFIG);
+  themeIcons = {
+    default: 'brightness_5',
+    dark: 'brightness_2',
+    light: 'wb_twilight'
+  };
 
   window = window;
 
@@ -71,6 +77,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.postsService.config_reloaded.subscribe(changed => {
       if (changed) {
         this.loadConfig();
+      }
+    });
+
+    this.postsService.theme_override.subscribe(theme => {
+      if (theme) {
+        this.setTheme(theme);
       }
     });
 
@@ -166,21 +178,15 @@ export class AppComponent implements OnInit, AfterViewInit {
       document.body.classList.remove(old_theme);
       this.overlayContainer.getContainerElement().classList.remove(old_theme);
     }
+    // body needs the theme class too (not just the app-root host element) since the
+    // --ytdl-* design tokens in styles.scss are keyed off `body.dark-theme`
+    document.body.classList.add(theme);
     this.overlayContainer.getContainerElement().classList.add(theme);
     this.componentCssClass = theme;
   }
 
-  flipTheme(): void {
-    if (this.postsService.theme.key === 'default') {
-      this.setTheme('dark');
-    } else if (this.postsService.theme.key === 'dark') {
-      this.setTheme('default');
-    }
-  }
-
-  themeMenuItemClicked(event): void {
-    this.flipTheme();
-    event.stopPropagation();
+  themeToggleChanged(event): void {
+    this.setTheme(event.value);
   }
 
   goBack(): void {

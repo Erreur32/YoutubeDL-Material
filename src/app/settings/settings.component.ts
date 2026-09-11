@@ -97,6 +97,13 @@ export class SettingsComponent implements OnInit {
           // multi user mode was enabled, let's check if default admin account exists
           this.postsService.checkAdminCreationStatus(true);
         }
+        // if the theme was changed here, apply it live instead of waiting for the
+        // next fresh visit (loadConfig only auto-applies default_theme when no
+        // theme is stored yet in localStorage)
+        const new_theme = this.new_config['Themes']['default_theme'];
+        if (new_theme !== this.initial_config['Themes']['default_theme']) {
+          this.postsService.theme_override.next(new_theme);
+        }
         // sets new config as old config
         this.initial_config = JSON.parse(JSON.stringify(this.new_config));
         this.postsService.reload_config.next(true);
@@ -114,8 +121,11 @@ export class SettingsComponent implements OnInit {
     this.new_config = JSON.parse(JSON.stringify(this.initial_config));
   }
 
-  tabChanged(event): void {
-    const index = event['index'];
+  selectTab(index: number): void {
+    if (this.INDEX_TO_TAB[index] === 'users' && !this.postsService.config?.Advanced.multi_user_mode) {
+      return;
+    }
+    this.tabIndex = index;
     this.router.navigate(['/settings', {tab: this.INDEX_TO_TAB[index]}]);
   }
 
