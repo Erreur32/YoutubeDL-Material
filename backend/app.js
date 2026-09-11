@@ -583,22 +583,20 @@ function loadConfigValues() {
     utils.updateLoggerLevel(logger_level);
 }
 
+// in dev mode the frontend is served by a separate `ng serve` process, on the default
+// port (4200) or the port used by dev-start.sh (4310). Only ever allow this fixed,
+// hardcoded set of known-safe local origins - never reflect an arbitrary
+// request-supplied Origin header back, since combined with
+// Access-Control-Allow-Credentials that would let any external site make
+// credentialed requests against this API (CORS credential leak).
+const DEV_ORIGIN_ALLOWLIST = [
+    'http://localhost:4200', 'http://127.0.0.1:4200',
+    'http://localhost:4310', 'http://127.0.0.1:4310'
+];
+
 function getOrigin(req) {
     if (process.env.CODESPACES) return `https://${process.env.CODESPACE_NAME}-4200.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
-    // in dev mode the frontend is served by a separate `ng serve` process, on a port/host
-    // that can vary (custom --port, LAN IP access, etc) and doesn't match the hardcoded
-    // 'http://localhost:4200' used above for `url`. Only reflect the request's Origin
-    // header when its hostname matches the Host this request came in on (same machine,
-    // different port) - never reflect an arbitrary third-party origin, since combined
-    // with Access-Control-Allow-Credentials that would let any external site make
-    // credentialed requests against this API.
-    if (debugMode && req && req.headers.origin) {
-        try {
-            if (new URL(req.headers.origin).hostname === req.hostname) return req.headers.origin;
-        } catch {
-            // malformed Origin header, fall through to the default below
-        }
-    }
+    if (debugMode && req && DEV_ORIGIN_ALLOWLIST.includes(req.headers.origin)) return req.headers.origin;
     return url_domain.origin;
 }
 
