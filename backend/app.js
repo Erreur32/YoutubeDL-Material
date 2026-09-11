@@ -587,9 +587,18 @@ function getOrigin(req) {
     if (process.env.CODESPACES) return `https://${process.env.CODESPACE_NAME}-4200.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
     // in dev mode the frontend is served by a separate `ng serve` process, on a port/host
     // that can vary (custom --port, LAN IP access, etc) and doesn't match the hardcoded
-    // 'http://localhost:4200' used above for `url` - reflect the request's actual Origin
-    // header instead so CORS doesn't silently block the dev server's API calls
-    if (debugMode && req && req.headers.origin) return req.headers.origin;
+    // 'http://localhost:4200' used above for `url`. Only reflect the request's Origin
+    // header when its hostname matches the Host this request came in on (same machine,
+    // different port) - never reflect an arbitrary third-party origin, since combined
+    // with Access-Control-Allow-Credentials that would let any external site make
+    // credentialed requests against this API.
+    if (debugMode && req && req.headers.origin) {
+        try {
+            if (new URL(req.headers.origin).hostname === req.hostname) return req.headers.origin;
+        } catch {
+            // malformed Origin header, fall through to the default below
+        }
+    }
     return url_domain.origin;
 }
 
