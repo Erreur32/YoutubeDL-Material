@@ -84,6 +84,7 @@ import { EditCategoryDialogComponent } from './dialogs/edit-category-dialog/edit
 import { TwitchChatComponent } from './components/twitch-chat/twitch-chat.component';
 import { LinkifyPipe, SeeMoreComponent } from './components/see-more/see-more.component';
 import { H401Interceptor } from './http.interceptor';
+import { XsrfInterceptor } from './xsrf.interceptor';
 import { ConcurrentStreamComponent } from './components/concurrent-stream/concurrent-stream.component';
 import { SkipAdButtonComponent } from './components/skip-ad-button/skip-ad-button.component';
 import { TasksComponent } from './components/tasks/tasks.component';
@@ -203,6 +204,7 @@ registerLocaleData(es, 'es');
     ],
     providers: [
         PostsService,
+        { provide: HTTP_INTERCEPTORS, useClass: XsrfInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: H401Interceptor, multi: true },
         DatePipe
     ],

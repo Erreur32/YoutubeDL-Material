@@ -159,6 +159,7 @@ export class PostsService implements CanActivate {
     service_initialized = new BehaviorSubject<boolean>(false);
     settings_changed = new BehaviorSubject<boolean>(false);
     open_create_default_admin_dialog = new BehaviorSubject<boolean>(false);
+    theme_override = new BehaviorSubject<string>(null);
 
     files_changed = new BehaviorSubject<boolean>(false);
     playlists_changed = new BehaviorSubject<boolean>(false);
@@ -182,7 +183,9 @@ export class PostsService implements CanActivate {
 
         if (isDevMode()) {
             this.debugMode = true;
-            this.path = !environment.codespaces ? 'http://localhost:17442/api/' : `${window.location.origin.replace('4200', '17442')}/api/`;
+            // use the page's own hostname (not a hardcoded 'localhost') so the API is reachable
+            // when the dev server is accessed over LAN from another device
+            this.path = !environment.codespaces ? `http://${window.location.hostname}:17442/api/` : `${window.location.origin.replace('4200', '17442')}/api/`;
         }
 
         this.http_params = `apiKey=${this.auth_token}`
@@ -203,7 +206,7 @@ export class PostsService implements CanActivate {
 
             // get config
             this.getConfig().subscribe(res => {
-                const result = !this.debugMode ? res['config_file'] : res;
+                const result = res['config_file'];
                 if (result) {
                     this.config = result['YoutubeDLMaterial'];
                     this.titleService.setTitle(this.config['Extra']['title_top']);
@@ -295,7 +298,7 @@ export class PostsService implements CanActivate {
 
     reloadConfig() {
         this.getConfig().subscribe(res => {
-            const result = !this.debugMode ? res['config_file'] : res;
+            const result = res['config_file'];
             if (result) {
                 this.config = result['YoutubeDLMaterial'];
                 this.config_reloaded.next(true);
@@ -355,11 +358,7 @@ export class PostsService implements CanActivate {
     }
 
     getConfig() {
-        if (isDevMode()) {
-            return this.http.get('./assets/default.json');
-        } else {
-            return this.http.get<ConfigResponse>(this.path + 'config', this.httpOptions);
-        }
+        return this.http.get<ConfigResponse>(this.path + 'config', this.httpOptions);
     }
 
     loadAsset(name) {
@@ -759,7 +758,11 @@ export class PostsService implements CanActivate {
                 this.afterLogin(res['user'], res['token'], res['permissions'], res['available_permissions']);
             }
         }, err => {
-            if (err === 'Unauthorized') {
+            // passport's jwt strategy replies 401 with a plain-text 'Unauthorized' body
+            // (not JSON), so HttpClient surfaces it as an HttpErrorResponse, never as
+            // the bare string this used to compare against - that always-false check
+            // left stale/invalid tokens stuck on the current page instead of logging out.
+            if (err.status === 401) {
                 this.sendToLogin();
                 this.token = null;
                 this.resetHttpParams();

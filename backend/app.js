@@ -583,8 +583,13 @@ function loadConfigValues() {
     utils.updateLoggerLevel(logger_level);
 }
 
-function getOrigin() {
+function getOrigin(req) {
     if (process.env.CODESPACES) return `https://${process.env.CODESPACE_NAME}-4200.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
+    // in dev mode the frontend is served by a separate `ng serve` process, on a port/host
+    // that can vary (custom --port, LAN IP access, etc) and doesn't match the hardcoded
+    // 'http://localhost:4200' used above for `url` - reflect the request's actual Origin
+    // header instead so CORS doesn't silently block the dev server's API calls
+    if (debugMode && req && req.headers.origin) return req.headers.origin;
     return url_domain.origin;
 }
 
@@ -617,8 +622,12 @@ async function startYoutubeDL() {
 }
 
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Origin", getOrigin());
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-XSRF-TOKEN");
+    res.header("Access-Control-Allow-Origin", getOrigin(req));
+    // required so the browser stores the XSRF-TOKEN cookie set by lusca and sends it back
+    // on subsequent requests, even though the frontend calls the API via an absolute URL
+    // (different origin from Angular's point of view, so cookies are otherwise dropped)
+    res.header("Access-Control-Allow-Credentials", "true");
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
     } else {
@@ -654,7 +663,11 @@ app.use(function(req, res, next) {
 // CSRF protection for state-changing requests that rely solely on the session cookie.
 // Requests already carrying a valid apiKey/JWT (an out-of-band secret unknown to an attacker site)
 // and the Telegram webhook (server-to-server, no cookie/session involved) are exempt.
-const csrfProtection = lusca.csrf();
+// `angular: true` makes lusca set the XSRF-TOKEN cookie and read the X-XSRF-TOKEN header.
+// NOTE: Angular's built-in XSRF interceptor only attaches that header for relative-URL
+// requests; this frontend always calls the API via an absolute URL, so a custom
+// interceptor (XsrfInterceptor) sets the header manually - see src/app/app.module.ts.
+const csrfProtection = lusca.csrf({ angular: true });
 app.use(function(req, res, next) {
     const has_valid_api_key = req.query.apiKey && (req.query.apiKey === config_api.getConfigItem('ytdl_internal_api_key') ||
         (config_api.getConfigItem('ytdl_use_api_key') && req.query.apiKey === config_api.getConfigItem('ytdl_api_key')));
@@ -2220,9 +2233,15 @@ app.use(function(req, res, next) {
 
     let index_path = path.join(__dirname, 'public', 'index.html');
 
+    if (!fs.existsSync(index_path)) {
+        // happens when the frontend hasn't been built into backend/public yet (e.g. running
+        // the Angular dev server separately with `ng serve` instead of `npm run build`)
+        return res.status(503).send('Frontend build not found. Run `npm run build` at the project root, or use the Angular dev server instead of hitting the backend port directly.');
+    }
+
     res.setHeader('Content-Type', 'text/html');
 
-    fs.createReadStream(index_path).pipe(res);
+    fs.createReadStream(index_path).on('error', next).pipe(res);
 
 });
 
