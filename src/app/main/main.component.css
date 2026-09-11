@@ -1,48 +1,305 @@
-.demo-card {
-    margin: 16px;
-}
+/* Layout is built entirely on the --ytdl-* design tokens (see src/styles.scss)
+   so it stays correct across all themes (default/dark/light) without any
+   theme-specific overrides here. */
 
-.demo-basic {
-    padding: 0;
-}
-
-.demo-basic .mat-mdc-card-content {
-    padding: 16px;
-}
-
-mat-toolbar.top {
-    height: 60px;
-    width: 100%;
-    text-align: center;
-}
-
-/*::ng-deep .mat-form-field-placeholder{
-
-    transform: scale(.75) translateY(20px) !important;
-  }*/
-
-.big {
+.home-container {
     max-width: 800px;
     margin: 0 auto;
+    padding: 24px 20px 0;
 }
 
-.centered {
-    margin: 0 auto;
-    top: 50%;
-    left: 50%;
+/* File card size (Profile dialog) also scales the URL card's width, so the
+   change is as visible here as it is on the file thumbnails below. Same
+   0.75x / 1x / 1.5x ratio as the file cards themselves (150/200/300px), kept
+   consistent across every scalable element on the page. */
+.home-container.card-size-small {
+    max-width: 600px;
 }
 
-.example-full-width {
+.home-container.card-size-large {
+    max-width: 1200px;
+}
+
+/* Main action card (URL + quality + quick options + download button) */
+
+.home-card.mat-mdc-card {
+    background: var(--ytdl-surface-1);
+    border: 1px solid var(--ytdl-border);
+    box-shadow: var(--ytdl-shadow-sm);
+}
+
+.home-card.home-card--standalone {
+    border-radius: var(--ytdl-radius-lg, 16px);
+}
+
+.home-card.home-card--attached {
+    border-radius: var(--ytdl-radius-lg, 16px) var(--ytdl-radius-lg, 16px) 0 0;
+    border-bottom: none;
+}
+
+.home-card-content.mat-mdc-card-content {
+    padding: 20px 20px 4px;
+}
+
+/* File card size (Profile dialog) also scales this card's density, so the
+   whole page feels consistent with the chosen size instead of only affecting
+   the file thumbnails below. Same 0.75x / 1x / 1.5x ratio used everywhere
+   else on the page (file cards, home-container, paginator). */
+.home-card.card-size-small .home-card-content.mat-mdc-card-content {
+    padding: 15px 15px 3px;
+}
+
+.home-card.card-size-small .url-field .mat-mdc-form-field {
+    font-size: 16px;
+}
+
+.home-card.card-size-small .url-input {
+    padding: 2px 25px 2px 0;
+}
+
+.home-card.card-size-large .home-card-content.mat-mdc-card-content {
+    padding: 30px 30px 6px;
+}
+
+.home-card.card-size-large .url-field .mat-mdc-form-field {
+    font-size: 33px;
+}
+
+.home-card.card-size-large .url-input {
+    padding: 4px 25px 4px 0;
+}
+
+.url-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.url-field {
+    flex: 1 1 320px;
+    min-width: 0;
+}
+
+/* mat-form-field est en ligne par defaut (largeur = son contenu) : sans ce
+   width: 100% il ne suit pas la largeur de .url-field, donc le champ ne
+   s'elargit jamais meme quand .home-container/.home-card grandissent avec
+   card_size. C'est un agrandissement reel de la largeur, pas un zoom. */
+.url-field .mat-mdc-form-field {
+    font-size: 22px;
     width: 100%;
 }
 
-.example-80-width {
-    width: 80%
+.quality-field {
+    position: relative;
+    flex: 0 1 170px;
 }
 
-mat-form-field.mat-mdc-form-field {
-    font-size: 24px;
-  }
+.quality-select {
+    width: 100%;
+}
+
+.url-input {
+    padding-right: 25px;
+    overflow-y: hidden;
+}
+
+.url-input::-webkit-scrollbar {
+    display: none;
+}
+
+.spinner-div {
+    display: inline-block;
+    position: absolute;
+    top: 15px;
+    right: -16px;
+}
+
+/* Search results (YouTube search suggestions shown instead of a direct URL) */
+
+.results-div {
+    position: relative;
+    top: -6px;
+    margin-bottom: 8px;
+}
+
+.result-card {
+    height: 120px;
+    border-radius: 0;
+    padding: 12px 14px;
+    position: relative;
+    background: var(--ytdl-surface-2);
+    border: 1px solid var(--ytdl-border);
+}
+
+.first-result-card {
+    border-radius: var(--ytdl-radius-sm, 8px) var(--ytdl-radius-sm, 8px) 0 0 !important;
+}
+
+.last-result-card {
+    border-radius: 0 0 var(--ytdl-radius-sm, 8px) var(--ytdl-radius-sm, 8px) !important;
+}
+
+.only-result-card {
+    border-radius: var(--ytdl-radius-sm, 8px) !important;
+}
+
+.search-card-title {
+    font-weight: 500;
+    color: var(--ytdl-text-primary);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.search-card-date {
+    font-size: 12px;
+    color: var(--ytdl-text-tertiary);
+    margin-bottom: 10px;
+}
+
+.result-use-button {
+    position: absolute;
+    left: 14px;
+    bottom: 10px;
+}
+
+.result-view-button {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+}
+
+/* Quick options (audio only / autoplay) + primary action buttons */
+
+.home-options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 4px;
+    padding: 12px 2px 18px;
+    border-top: 1px solid var(--ytdl-border);
+}
+
+.home-options-toggles {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+}
+
+.home-options-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.download-button.mat-mdc-flat-button,
+.cancel-button.mat-mdc-outlined-button {
+    border-radius: 24px;
+}
+
+.download-button mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    vertical-align: text-bottom;
+    margin-right: 4px;
+}
+
+/* Advanced options panel - visually attached under the main card, hidden
+   behind a collapsed disclosure by default (mat-expansion-panel). */
+
+.advanced-form {
+    display: block;
+}
+
+.home-advanced-panel.mat-expansion-panel {
+    background: var(--ytdl-surface-1) !important;
+    border: 1px solid var(--ytdl-border);
+    border-top: none;
+    box-shadow: none !important;
+    border-radius: 0 0 var(--ytdl-radius-lg, 16px) var(--ytdl-radius-lg, 16px) !important;
+    margin-bottom: 28px;
+}
+
+.advanced-panel-icon {
+    margin-right: 8px;
+    vertical-align: middle;
+    color: var(--ytdl-text-secondary);
+}
+
+.simulated-command {
+    color: var(--ytdl-text-secondary);
+    font-size: 13px;
+    margin: 4px 0 18px;
+}
+
+.advanced-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px 28px;
+    padding-bottom: 12px;
+}
+
+.advanced-grid-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+}
+
+.advanced-checkbox-inline {
+    margin-left: 6px;
+}
+
+.advanced-input {
+    width: 100%;
+}
+
+.advanced-input .mat-mdc-form-field-hint,
+.advanced-input mat-hint {
+    color: var(--ytdl-text-tertiary);
+}
+
+.crop-fields {
+    display: flex;
+    gap: 12px;
+}
+
+.advanced-input-half {
+    flex: 1 1 0;
+}
+
+.edit-button {
+    margin-left: 2px;
+    vertical-align: middle;
+}
+
+/* Download progress (autoplay mode) */
+
+.home-progress {
+    max-width: 800px;
+    margin: 4px auto 20px;
+    padding: 0 20px;
+}
+
+/* Vue "small" uniquement : cette section reste alignee sur les 600px de
+   .home-container.card-size-small au lieu de garder les 800px par defaut,
+   pour que tout ait la meme largeur en vue small. */
+.home-progress.card-size-small {
+    max-width: 600px;
+}
+
+.progress-bar-wrap {
+    width: 100%;
+}
+
+.home-progress-bar {
+    border-radius: 6px;
+}
 
 .spinner {
     position: absolute;
@@ -59,106 +316,102 @@ mat-form-field.mat-mdc-form-field {
     padding-right: 20px;
 }
 
-.search-card-title {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.input-clear-button {
-    position: absolute;
-    right: 5px;
-    top: 22px;
-}
-
-.spinner-div {
-    display: inline-block;
-    position: absolute;
-    top: 15px;
-    right: -16px;
-}
-
-.margined {
-    margin-left: 20px;
-    margin-right: 20px;
-}
-
-.results-div {
-    position: relative;
-    top: -15px;
-}
-
-.first-result-card {
-    border-radius: 4px 4px 0px 0px !important;
-}
-
-.last-result-card {
-    border-radius: 0px 0px 4px 4px !important;
-}
-
-.only-result-card {
-    border-radius: 4px !important;
-}
-
-.result-card {
-    height: 120px;
-    border-radius: 0px;
-    padding-bottom: 5px;
-}
-
-.download-progress-bar {
-    z-index: 999;
-    position: absolute;
-    bottom: 0px;
-    width: 150px;
-    border-radius: 0px 0px 4px 4px;
-    overflow: hidden;
-    bottom: 12px;
-}
-
-.add-playlist-button {
-    float: right;
-}
-
-.advanced-input {
-    width: 100%;
-}
-
-.advanced-input-time {
-    margin-left: 10px;
-}
-
-.edit-button {
-    margin-left: 5px;
-    margin-top: -6px;
-    margin-bottom: -5px;
-    position: relative;
-    top: 6px;
-}
-
-.border-radius-both {
-    border-radius: 16px;
-}
-
-.no-border-radius-bottom {
-    border-radius: 16px 16px 0px 0px;
-}
-
-.no-border-radius-top {
-    border-radius: 0px 0px 16px 16px;
-}
-
 @media (max-width: 576px) {
-    .download-progress-bar {
-        width: 125px;
+    .home-container,
+    .home-progress {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 }
 
-.url-input {
-    padding-right: 25px;
-    overflow-y: hidden;
+/* Downloads / Recent videos / Custom playlists sections */
+
+.home-section {
+    max-width: 900px;
+    margin: 28px auto 0;
+    padding: 0 20px 8px;
 }
 
-.url-input::-webkit-scrollbar {
-    display: none;
+/* Vue "small" uniquement : meme largeur que .home-container.card-size-small
+   (600px) au lieu des 900px par defaut, pour rester coherent avec le reste
+   de la page dans cette vue. */
+.home-section.card-size-small {
+    max-width: 600px;
+}
+
+.home-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ytdl-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin-bottom: 12px;
+}
+
+.home-section-title mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+.home-downloads-list {
+    display: block;
+}
+
+/* Recent videos (left, flexible) + Custom playlists (right sidebar) - there is
+   plenty of horizontal room next to the file browser on wider screens, so the
+   playlists panel sits beside it instead of stacking below. Wraps to a normal
+   stacked layout (sidebar below) once the viewport gets too narrow. */
+
+.home-files-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 24px;
+    max-width: 1280px;
+    margin: 28px auto 0;
+    padding: 0 20px 8px;
+}
+
+.home-files-main {
+    flex: 3 1 640px;
+    min-width: 0;
+}
+
+.home-files-sidebar {
+    flex: 1 1 280px;
+    min-width: 260px;
+    max-width: 340px;
+}
+
+/* En taille small/medium, les cartes fichiers restent assez etroites pour
+   tenir a cote de la sidebar playlists, mais l'ensemble parait alors
+   desaligne avec le reste de la page. On empile donc Custom playlists sous
+   Recent videos pour ces deux tailles, comme cela arrive deja naturellement
+   en large (les grandes cartes forcent le retour a la ligne du flex-wrap). */
+.home-files-row.card-size-small,
+.home-files-row.card-size-medium {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.home-files-row.card-size-small .home-files-sidebar,
+.home-files-row.card-size-medium .home-files-sidebar {
+    max-width: none;
+    width: 100%;
+}
+
+/* Vue "small" uniquement : la ligne fichiers/playlists garde ses 1280px par
+   defaut meme en small, ce qui la rend beaucoup plus large que la carte URL
+   (600px) au-dessus - le plus gros facteur d'incoherence signale sur cette
+   vue. On l'aligne donc, elle aussi, sur les 600px. */
+.home-files-row.card-size-small {
+    max-width: 600px;
+    /* Reduit l'espace entre Recent videos et Custom playlists une fois
+       empiles verticalement, qui paraissait trop grand en vue small. */
+    gap: 8px;
 }

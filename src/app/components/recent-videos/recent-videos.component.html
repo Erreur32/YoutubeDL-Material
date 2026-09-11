@@ -1,16 +1,12 @@
 <div class="container-fluid" style="max-width: 941px;">
     <div class="row">
-        <!-- Sorting -->
-        <div class="col-12 order-2 col-sm-4 order-sm-1 d-flex justify-content-center">
-            <app-sort-property [(sortProperty)]="sortProperty" [(descendingMode)]="descendingMode" (sortOptionChanged)="sortOptionChanged($event)"></app-sort-property>
-        </div>
         <!-- Files title -->
-        <div class="col-12 order-1 col-sm-4 order-sm-2 d-flex justify-content-center">
+        <div class="col-12 order-1 col-sm-6 order-sm-1 d-flex justify-content-center">
             <h4 *ngIf="!customHeader" class="my-videos-title" i18n="My files title">My files</h4>
             <h4 *ngIf="customHeader" class="my-videos-title">{{customHeader}}</h4>
         </div>
         <!-- Search -->
-        <div class="col-12 order-3 col-sm-4 order-sm-3 d-flex justify-content-center">
+        <div class="col-12 order-2 col-sm-6 order-sm-2 d-flex justify-content-center">
             <mat-form-field appearance="outline" [ngClass]="searchIsFocused ? 'search-bar-focused' : 'search-bar-unfocused'" class="search-bar" color="accent">
                 <mat-label i18n="Search">Search</mat-label>
                 <input (focus)="searchIsFocused = true" (blur)="searchIsFocused = false" class="search-input" type="text" [(ngModel)]="search_text" (ngModelChange)="onSearchInputChanged($event)" matInput>
@@ -27,7 +23,7 @@
 </div>
 <div>
     <!-- Files -->
-    <div *ngIf="!selectMode" class="container" style="margin-bottom: 16px">
+    <div *ngIf="!selectMode" class="container files-container" [ngClass]="'card-size-' + postsService.card_size">
         <div class="row justify-content-center">
             <!-- Real cards -->
             <ng-container *ngIf="normal_files_received && paged_data">
@@ -96,8 +92,9 @@
         </mat-tab-group>
     </div>
 
-    <div style="position: relative;" *ngIf="usePaginator && selectedIndex > 0">
-        <mat-paginator class="paginator" #paginator (page)="pageChangeEvent($event)" [length]="file_count"
+    <div class="paginator-bar" [ngClass]="'card-size-' + postsService.card_size" *ngIf="usePaginator && selectedIndex > 0">
+        <app-sort-property [(sortProperty)]="sortProperty" [(descendingMode)]="descendingMode" (sortOptionChanged)="sortOptionChanged($event)"></app-sort-property>
+        <mat-paginator class="paginator" [ngClass]="'card-size-' + postsService.card_size" #paginator (page)="pageChangeEvent($event)" [length]="file_count"
                 [pageSize]="pageSize"
                 [pageSizeOptions]="[5, 10, 25, 100, this.paged_data && this.paged_data.length > 100 ? this.paged_data.length : 250]">
         </mat-paginator>

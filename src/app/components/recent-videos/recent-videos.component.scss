@@ -1,3 +1,14 @@
+.files-container {
+    margin-bottom: 16px;
+}
+
+/* Vue "small" uniquement : cette marge, cumulee avec le padding du cadre
+   "item per page" en dessous et l'espacement de .home-files-row, donnait
+   l'impression d'un trop grand vide avant Custom playlists. */
+.files-container.card-size-small {
+    margin-bottom: 4px;
+}
+
 .large-col {
     max-width: 320px;
 }
@@ -41,8 +52,63 @@
     display: inline-block;
 }
 
+/* Le bouton de tri (app-sort-property) et le paginateur (items per page)
+   partagent maintenant un seul et meme cadre visuel, au lieu du paginateur
+   ayant son propre fond et du bouton de tri flottant a cote sans lien
+   visuel avec lui. */
+.paginator-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background-color: var(--ytdl-surface-1);
+    border-radius: var(--ytdl-radius-lg, 16px);
+    padding: 4px 12px;
+
+    /* En taille "large" le paginateur est agrandi via transform: scale(),
+       qui ne reserve pas d'espace dans le flux flex - un padding/gap trop
+       petit fait alors deborder le paginateur sur le bouton de tri a sa
+       gauche. On augmente donc l'espacement pour laisser la place au zoom. */
+    &.card-size-large {
+        gap: 32px;
+        padding: 8px 24px;
+    }
+}
+
 .paginator {
     margin-top: 5px;
+    /* Le fond est maintenant porte par .paginator-bar (cadre commun avec le
+       bouton de tri), le paginateur reste donc transparent ici. */
+    background-color: transparent !important;
+
+    /* Le reglage "File card size" (dialog Profile) agit aussi sur la densite
+       du paginateur, pour rester coherent avec la taille des cartes au-dessus.
+       transform: scale() est utilise en plus des tailles/polices car les
+       dimensions internes du paginateur MDC sont figees a la compilation Sass
+       et ne repondent pas de facon fiable a un simple override de propriete
+       (meme probleme que les champs outline plus haut dans le projet). */
+    &.card-size-small {
+        font-size: 12px;
+        transform: scale(0.75);
+        transform-origin: right center;
+        /* La boite garde sa hauteur non reduite (transform ne modifie pas
+           la mise en page), d'ou ce margin-top: 0 pour eviter un vide
+           visuel supplementaire sous le contenu retreci. */
+        margin-top: 0;
+        .mat-mdc-paginator-container { min-height: 40px; }
+    }
+
+    &.card-size-large {
+        font-size: 15px;
+        /* Dezoome par rapport a la 1ere version (1.5x) : a ce niveau de zoom
+           le paginateur debordait sur le bouton de tri et le cachait. */
+        transform: scale(1.2);
+        transform-origin: center center;
+        .mat-mdc-paginator-container { min-height: 64px; }
+        .mat-mdc-paginator-page-size-select { width: 76px; }
+    }
 }
 
 .my-videos-title {
