@@ -43,7 +43,7 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.tags }}" != "" ]; then
             echo "tags=${{ github.event.inputs.tags }}" >> "$GITHUB_OUTPUT"
-          elif [ ${{ github.event.action }} == "release" ]; then
+          elif [ "${{ github.event.action }}" == "published" ]; then
             echo "tags=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown workflow trigger: ${{ github.event.action }}! Cannot determine default tag."
