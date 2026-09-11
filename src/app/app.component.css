@@ -12,10 +12,27 @@
     flex: 1;
 }
 
-.theme-slide-toggle {
-    left: 10px;
-    position: relative;
-    pointer-events: none;
+.theme-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 16px;
+}
+
+.theme-switch-toggle.mat-button-toggle-group {
+    border-radius: var(--ytdl-radius-sm);
+    border-color: var(--ytdl-border);
+}
+
+.theme-switch-toggle .mat-button-toggle {
+    background-color: var(--ytdl-surface-2);
+    color: var(--ytdl-text-secondary);
+}
+
+.theme-switch-toggle .mat-button-toggle-checked {
+    background-color: var(--ytdl-accent) !important;
+    color: var(--ytdl-accent-contrast) !important;
 }
 
 .sidenav-container {
@@ -30,10 +47,6 @@
 ::ng-deep .top-menu-button > span {
     width: 85px;
     height: 26px;
-}
-
-::ng-deep .mdc-switch {
-    outline: none !important;
 }
 
 ::ng-deep .notifications-menu {

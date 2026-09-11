@@ -10,7 +10,123 @@
 @import "palette.scss";
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: var(--ytdl-text-primary); }
+
+// Design tokens - see .claude/skills/frontend-design for the full palette reference.
+// Applied on :root (defaults) and re-declared on body.<css_label> so every theme
+// class toggled in app.component.ts (default-theme / dark-theme / light-theme)
+// cascades down to app content AND the CDK overlay container (dialogs, menus).
+:root {
+  --ytdl-bg: #f6f6f8;
+  --ytdl-surface-1: #ffffff;
+  --ytdl-surface-2: #f1f1f4;
+  --ytdl-surface-3: #ececef;
+  --ytdl-border: #e2e2e7;
+  --ytdl-border-strong: #d8d8de;
+  --ytdl-accent: #6d5ef0;
+  --ytdl-accent-contrast: #ffffff;
+  --ytdl-text-primary: #18181b;
+  --ytdl-text-secondary: #57575f;
+  --ytdl-text-tertiary: #8b8b93;
+  --ytdl-success: #1f9d5c;
+  --ytdl-warning: #b3760f;
+  --ytdl-danger: #c22e3d;
+  --ytdl-radius-sm: 8px;
+  --ytdl-radius-md: 12px;
+  --ytdl-radius-lg: 16px;
+  --ytdl-radius-xl: 20px;
+  --ytdl-shadow-sm: 0 1px 2px rgba(20, 20, 30, .08);
+  --ytdl-shadow-md: 0 8px 24px rgba(20, 20, 30, .10);
+}
+
+body.dark-theme {
+  --ytdl-bg: #0a0a0c;
+  // slightly lighter than before so cards (.settings-card etc, which use surface-1
+  // as their background) read clearly against the body background instead of
+  // blending into it
+  --ytdl-surface-1: #19191e;
+  --ytdl-surface-2: #1e1e23;
+  --ytdl-surface-3: #26262c;
+  --ytdl-border: #2c2c33;
+  --ytdl-border-strong: #38383f;
+  --ytdl-accent: #7c6cf6;
+  --ytdl-accent-contrast: #0a0a0c;
+  --ytdl-text-primary: #f4f4f5;
+  --ytdl-text-secondary: #a1a1aa;
+  --ytdl-text-tertiary: #6e6e78;
+  --ytdl-success: #2fbf71;
+  --ytdl-warning: #f5a623;
+  --ytdl-danger: #f2495c;
+  --ytdl-shadow-sm: 0 1px 2px rgba(0, 0, 0, .5);
+  --ytdl-shadow-md: 0 8px 24px rgba(0, 0, 0, .45);
+}
+
+// Light theme, "paper" palette - a light theme that isn't pure white, kept
+// visually distinct from 'default' (see src/themes.ts for the matching
+// background/ghost/drawer colors consumed outside this token system).
+body.light-theme {
+  --ytdl-bg: #f0ece3;
+  --ytdl-surface-1: #faf8f3;
+  --ytdl-surface-2: #ece6d9;
+  --ytdl-surface-3: #e3dcc9;
+  --ytdl-border: #ddd4bd;
+  --ytdl-border-strong: #cfc3a4;
+  --ytdl-accent: #6d5ef0;
+  --ytdl-accent-contrast: #ffffff;
+  --ytdl-text-primary: #262117;
+  --ytdl-text-secondary: #5c5645;
+  --ytdl-text-tertiary: #8a8266;
+  --ytdl-success: #1f9d5c;
+  --ytdl-warning: #b3760f;
+  --ytdl-danger: #c22e3d;
+  --ytdl-shadow-sm: 0 1px 2px rgba(40, 30, 10, .10);
+  --ytdl-shadow-md: 0 8px 24px rgba(40, 30, 10, .12);
+}
+
+// The CDK overlay container also receives the theme class (see app.component.ts
+// onSetTheme) so dialogs/menus/selects inherit the same tokens.
+// Kept in exact parity with body.dark-theme above (same token set) so any
+// overlay content (menus/dialogs/selects) using success/warning/danger/shadow
+// tokens - not just color/surface ones - also renders correctly.
+.cdk-overlay-container.dark-theme {
+  --ytdl-bg: #0a0a0c;
+  --ytdl-surface-1: #19191e;
+  --ytdl-surface-2: #1e1e23;
+  --ytdl-surface-3: #26262c;
+  --ytdl-border: #2c2c33;
+  --ytdl-border-strong: #38383f;
+  --ytdl-accent: #7c6cf6;
+  --ytdl-accent-contrast: #0a0a0c;
+  --ytdl-text-primary: #f4f4f5;
+  --ytdl-text-secondary: #a1a1aa;
+  --ytdl-text-tertiary: #6e6e78;
+  --ytdl-success: #2fbf71;
+  --ytdl-warning: #f5a623;
+  --ytdl-danger: #f2495c;
+  --ytdl-shadow-sm: 0 1px 2px rgba(0, 0, 0, .5);
+  --ytdl-shadow-md: 0 8px 24px rgba(0, 0, 0, .45);
+}
+
+// Kept in exact parity with body.light-theme above - see comment on the
+// dark-theme block right above.
+.cdk-overlay-container.light-theme {
+  --ytdl-bg: #f0ece3;
+  --ytdl-surface-1: #faf8f3;
+  --ytdl-surface-2: #ece6d9;
+  --ytdl-surface-3: #e3dcc9;
+  --ytdl-border: #ddd4bd;
+  --ytdl-border-strong: #cfc3a4;
+  --ytdl-accent: #6d5ef0;
+  --ytdl-accent-contrast: #ffffff;
+  --ytdl-text-primary: #262117;
+  --ytdl-text-secondary: #5c5645;
+  --ytdl-text-tertiary: #8a8266;
+  --ytdl-success: #1f9d5c;
+  --ytdl-warning: #b3760f;
+  --ytdl-danger: #c22e3d;
+  --ytdl-shadow-sm: 0 1px 2px rgba(40, 30, 10, .10);
+  --ytdl-shadow-md: 0 8px 24px rgba(40, 30, 10, .12);
+}
 
 @import '@angular/material/theming';
 // Plus imports for other components in your app.
@@ -23,23 +139,30 @@ $custom-typography: mat-typography-config(
 );
 @include angular-material-typography($custom-typography);
 */
-// Default colors
-$my-app-primary: mat-palette($mat-light-blue, 700, 100, 800);
-$my-app-accent:  mat-palette($mat-blue, 700, 100, 800);
+// Default colors - violet/indigo accent to match the modernized dark/light palette
+$my-app-primary: mat-palette($mat-deep-purple, 500, 100, 800);
+$my-app-accent:  mat-palette($mat-deep-purple, 500, 100, 800);
 $my-app-warn: mat-palette($mat-red, 700, 100, 800);
 
 $my-app-theme: mat-light-theme($my-app-primary, $my-app-accent, $my-app-warn);
 @include angular-material-theme($my-app-theme);
 
 // Dark theme
-$dark-primary: mat-palette($mat-light-blue, 700, 100, 800);
-$dark-accent:  mat-palette($mat-blue);
+$dark-primary: mat-palette($mat-deep-purple, 300, 100, 700);
+$dark-accent:  mat-palette($mat-deep-purple, 300, 100, 700);
 $dark-warn:    mat-palette($mat-deep-orange);
 
 $dark-theme:   mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
 
-.dark-theme {
+// Scoped to body (not a bare `.dark-theme` class selector): the CDK overlay
+// container (tooltips/menus/dialogs, fixed full-viewport, high z-index) also
+// carries this same theme class (see app.component.ts onSetTheme) so it can
+// pick up the Material component theming below via body.dark-theme descendant
+// rules - but it must NOT get its own solid background-color, or it paints a
+// full black/opaque rectangle over the entire page whenever an overlay opens.
+body.dark-theme {
   @include angular-material-theme($dark-theme);
+  background-color: var(--ytdl-bg);
 }
 
 .mat-mdc-outlined-button, .mat-mdc-raised-button, .mat-mdc-flat-button {
@@ -53,8 +176,119 @@ $light-warn: mat-palette($mat-deep-orange, 200);
 
 $light-theme: mat-light-theme($light-primary, $light-accent, $light-warn);
 
-.light-theme {
+// See the body.dark-theme comment above - same reasoning applies here.
+body.light-theme {
   @include angular-material-theme($light-theme);
+  background-color: var(--ytdl-bg);
+}
+
+// Fixes illegible text in dark-theme form fields once focused/active: the MDC
+// filled-text-field's own state-layer/container colors don't reliably track our
+// custom --ytdl-* tokens, so pin the background and text color explicitly instead
+// of relying on Material's built-in theming for this state. Applies to both
+// custom-token themes (dark AND light) for parity - 'default' is intentionally
+// left on Material's native styling since it isn't a custom token theme.
+body.dark-theme, body.light-theme {
+  .mat-mdc-form-field .mdc-text-field {
+    background-color: var(--ytdl-surface-2);
+  }
+
+  .mat-mdc-form-field .mdc-text-field--focused {
+    background-color: var(--ytdl-surface-3);
+  }
+
+  .mat-mdc-form-field .mat-mdc-input-element,
+  .mat-mdc-form-field .mdc-text-field__input {
+    color: var(--ytdl-text-primary) !important;
+    caret-color: var(--ytdl-accent);
+  }
+
+  .mat-mdc-form-field .mdc-floating-label {
+    color: var(--ytdl-text-secondary);
+  }
+
+  // browsers force their own (usually light) background on autofilled inputs,
+  // ignoring app CSS - this is the standard workaround to keep it readable
+  .mat-mdc-form-field input:-webkit-autofill {
+    -webkit-text-fill-color: var(--ytdl-text-primary);
+    box-shadow: inset 0 0 0 1000px var(--ytdl-surface-2);
+    caret-color: var(--ytdl-text-primary);
+  }
+}
+
+// Menu / select / autocomplete panels (mat-menu, mat-select, mat-autocomplete):
+// same story as the form fields above - the MDC list-item internals don't
+// reliably track our --ytdl-* tokens on their own, so pin panel background,
+// item text and hover/active/selected states explicitly. Written against the
+// plain --ytdl-* tokens (not scoped to a specific body.<theme> block) so it
+// stays correct for all three themes (default/dark/light) via the cascade.
+.mat-mdc-menu-panel,
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel {
+  background-color: var(--ytdl-surface-1) !important;
+  border: 1px solid var(--ytdl-border);
+}
+
+.mat-mdc-menu-item,
+.mat-mdc-option {
+  color: var(--ytdl-text-primary) !important;
+
+  .mat-mdc-menu-item-text,
+  .mdc-list-item__primary-text {
+    color: inherit;
+  }
+}
+
+.mat-mdc-menu-item:hover:not([disabled]),
+.mat-mdc-menu-item.cdk-program-focused:not([disabled]),
+.mat-mdc-menu-item.cdk-keyboard-focused:not([disabled]),
+.mat-mdc-option:hover:not(.mdc-list-item--disabled),
+.mat-mdc-option.mat-mdc-option-active {
+  background-color: var(--ytdl-surface-2) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mat-mdc-option-multiple) {
+  background-color: var(--ytdl-surface-3) !important;
+  color: var(--ytdl-accent) !important;
+}
+
+// Filter chips (Video only / Audio only / Favorited, etc. - mat-chip-option):
+// same story as the menu/select panels above - MDC's own chip colors don't
+// track our --ytdl-* tokens, so pin unselected/selected states explicitly.
+.mat-mdc-chip-option {
+  background-color: var(--ytdl-surface-2) !important;
+  color: var(--ytdl-text-primary) !important;
+  border: 1px solid var(--ytdl-border);
+}
+
+.mat-mdc-chip-option.mat-mdc-chip-selected {
+  background-color: var(--ytdl-accent) !important;
+  color: var(--ytdl-accent-contrast) !important;
+  border-color: var(--ytdl-accent);
+}
+
+// Outlined form fields (search bar, paginator page-size select) - MDC's
+// default outline is thicker/squarer than the rest of the app's rounded
+// tokens, making these fields look oversized next to everything else.
+// Rounded a bit (not pill-shaped) and thinned down to match.
+// Note: the outline shape/width isn't exposed as a runtime CSS custom
+// property in this Material version (it's baked into the compiled CSS at
+// build time), so it has to be overridden directly on the notched-outline
+// parts rather than via a --mdc-* variable.
+.mat-mdc-form-field.mat-form-field-appearance-outline {
+  .mdc-notched-outline__leading {
+    border-radius: var(--ytdl-radius-sm) 0 0 var(--ytdl-radius-sm) !important;
+  }
+
+  .mdc-notched-outline__trailing {
+    border-radius: 0 var(--ytdl-radius-sm) var(--ytdl-radius-sm) 0 !important;
+  }
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-width: 1px !important;
+  }
 }
 
 .no-outline {
