@@ -110,8 +110,12 @@ let useDefaultDownloadingAgent = null;
 let customDownloadingAgent = null;
 let allowSubscriptions = null;
 
-// other needed values
-let url_domain = null;
+// other needed values. Never initialize this as the `null` literal: the CORS
+// middleware below reflects `url_domain.origin` back as Access-Control-Allow-Origin,
+// and CodeQL flags any value that could resolve to the string "null" here since
+// the "null" Origin is trivially forgeable by an attacker (sandboxed iframes, etc.)
+// and combined with Access-Control-Allow-Credentials: true would leak credentials.
+let url_domain = new URL('http://localhost');
 let updaterStatus = null;
 
 const concurrentStreams = {};
