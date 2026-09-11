@@ -36,6 +36,12 @@ const notifications_api = require('./notifications');
 
 var app = express();
 
+// Only trust X-Forwarded-For when explicitly running behind a reverse proxy
+// (nginx, traefik, Cloudflare tunnel, etc.). Trusting it unconditionally would
+// let a directly-exposed instance's clients spoof their IP and bypass the
+// rate limiter below.
+if (process.env.TRUST_PROXY) app.set('trust proxy', process.env.TRUST_PROXY);
+
 // database setup
 const FileSync = require('lowdb/adapters/FileSync');
 
