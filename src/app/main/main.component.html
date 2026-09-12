@@ -211,14 +211,36 @@
             <section class="home-files-main">
                 <app-recent-videos #recentVideos></app-recent-videos>
             </section>
-            <aside class="home-files-sidebar">
+        </div>
+
+        <!-- Custom playlists are moved out of the page flow entirely and shown as a
+             right-side overlay panel toggled by this floating button, instead of a
+             sidebar competing for width with the file browser. -->
+        <button mat-fab color="accent" class="playlists-toggle-button"
+                [matBadge]="customPlaylists.playlists?.length"
+                [matBadgeHidden]="!customPlaylists.playlists?.length"
+                matBadgeColor="warn" matBadgeSize="small"
+                matTooltip="Custom playlists" i18n-matTooltip="Custom playlists toggle button tooltip"
+                (click)="playlistsPanelOpen = true">
+            <mat-icon>playlist_play</mat-icon>
+        </button>
+
+        <div class="playlists-backdrop" *ngIf="playlistsPanelOpen" (click)="playlistsPanelOpen = false"></div>
+
+        <aside class="playlists-overlay-panel" [class.playlists-overlay-panel--open]="playlistsPanelOpen">
+            <div class="playlists-overlay-header">
                 <div class="home-section-title"
                         [matTooltip]="customPlaylists.playlists && customPlaylists.playlists.length === 0 ? emptyPlaylistsHint : null"
                         matTooltipPosition="above">
                     <mat-icon>playlist_play</mat-icon>
                     <ng-container i18n="Custom playlists section title">Custom playlists</ng-container>
                 </div>
+                <button mat-icon-button (click)="playlistsPanelOpen = false" aria-label="Close playlists panel" i18n-aria-label="Close playlists panel button">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <div class="playlists-overlay-body">
                 <app-custom-playlists #customPlaylists></app-custom-playlists>
-            </aside>
-        </div>
+            </div>
+        </aside>
     </ng-container>

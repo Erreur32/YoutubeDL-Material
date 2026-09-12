@@ -93,7 +93,7 @@
     </div>
 
     <div class="paginator-bar" [ngClass]="'card-size-' + postsService.card_size" *ngIf="usePaginator && selectedIndex > 0">
-        <app-sort-property [(sortProperty)]="sortProperty" [(descendingMode)]="descendingMode" (sortOptionChanged)="sortOptionChanged($event)"></app-sort-property>
+        <app-sort-property [cardSize]="postsService.card_size" [(sortProperty)]="sortProperty" [(descendingMode)]="descendingMode" (sortOptionChanged)="sortOptionChanged($event)"></app-sort-property>
         <mat-paginator class="paginator" [ngClass]="'card-size-' + postsService.card_size" #paginator (page)="pageChangeEvent($event)" [length]="file_count"
                 [pageSize]="pageSize"
                 [pageSizeOptions]="[5, 10, 25, 100, this.paged_data && this.paged_data.length > 100 ? this.paged_data.length : 250]">

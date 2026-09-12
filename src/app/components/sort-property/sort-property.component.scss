@@ -14,3 +14,19 @@
         display: none;
     }
 }
+
+/* Vue "medium" : depuis que .home-files-row est aligne sur les 800px du
+   reste de la page (au lieu de 1280px), ce selecteur a sa largeur fixe de
+   165px + le bouton d'ordre ne tenait plus sur la meme ligne que le
+   paginateur ("items per page") a cote. On le retrecit pour que les deux
+   cohabitent sur une seule ligne. */
+.sort-property.card-size-medium {
+    .sort-property-select {
+        width: 130px;
+        font-size: 13px;
+
+        ::ng-deep .mat-mdc-text-field-wrapper {
+            height: 40px;
+        }
+    }
+}
