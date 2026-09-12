@@ -30,11 +30,17 @@ Issues and pull requests are welcome on this fork's [issue tracker](https://gith
 <details>
 <summary><strong>Screenshots</strong></summary>
 
-<img src="https://i.imgur.com/C6vFGbL.png" width="800">
+General view:
 
-Dark mode:
+<img src="docs/screenshots/youtubdl_general.png" width="800">
 
-<img src="https://i.imgur.com/vOtvH5w.png" width="800">
+Settings - General:
+
+<img src="docs/screenshots/youtubdl_settings_general.png" width="800">
+
+Settings - Integrations:
+
+<img src="docs/screenshots/youtubdl_settings_integrations.png" width="800">
 
 </details>
 
