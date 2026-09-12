@@ -5,7 +5,6 @@ import {DomSanitizer} from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
 import { ArgModifierDialogComponent } from 'app/dialogs/arg-modifier-dialog/arg-modifier-dialog.component';
 import { CURRENT_VERSION } from 'app/consts';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { CookiesUploaderDialogComponent } from 'app/dialogs/cookies-uploader-dialog/cookies-uploader-dialog.component';
 import { ConfirmDialogComponent } from 'app/dialogs/confirm-dialog/confirm-dialog.component';
 import { moveItemInArray, CdkDragDrop } from '@angular/cdk/drag-drop';
@@ -25,7 +24,9 @@ export class SettingsComponent implements OnInit {
   new_config = null
   loading_config = false;
   generated_bookmarklet_code = null;
-  bookmarkletAudioOnly = false;
+  generated_bookmarklet_code_audio_only = null;
+  chromeFaviconError = false;
+  firefoxFaviconError = false;
 
   db_info: DBInfoResponse = null;
   db_transferring = false;
@@ -36,9 +37,10 @@ export class SettingsComponent implements OnInit {
   latestGithubRelease = null;
   CURRENT_VERSION = CURRENT_VERSION
 
-  tabs = ['main', 'downloader', 'extra', 'database', 'notifications', 'advanced', 'users', 'logs'];
+  tabs = ['main', 'downloads', 'application', 'integrations', 'database', 'users', 'extensions', 'logs'];
   tabIndex = 0;
-  
+  notificationsSubTab = 0;
+
   INDEX_TO_TAB = Object.assign({}, this.tabs);
   TAB_TO_INDEX = {};
   
@@ -72,7 +74,8 @@ export class SettingsComponent implements OnInit {
       });
     }
 
-    this.generated_bookmarklet_code = this.sanitizer.bypassSecurityTrustUrl(this.generateBookmarkletCode());
+    this.generated_bookmarklet_code = this.sanitizer.bypassSecurityTrustUrl(this.generateBookmarkletCode(false));
+    this.generated_bookmarklet_code_audio_only = this.sanitizer.bypassSecurityTrustUrl(this.generateBookmarkletCode(true));
 
     this.getLatestGithubRelease();
 
@@ -210,18 +213,12 @@ export class SettingsComponent implements OnInit {
     this.bookmarksite('YTDL-Material', this.generated_bookmarklet_code);
   }
 
-  generateBookmarkletCode(): string {
+  generateBookmarkletCode(audioOnly: boolean): string {
     const currentURL = window.location.href.split('#')[0];
     const homePageWithArgsURL = currentURL + '#/home;url=';
-    const audioOnly = this.bookmarkletAudioOnly;
     // tslint:disable-next-line: max-line-length
     const bookmarkletCode = `javascript:(function()%7Bwindow.open('${homePageWithArgsURL}' + encodeURIComponent(window.location) + ';audioOnly=${audioOnly}')%7D)()`;
     return bookmarkletCode;
-  }
-
-  bookmarkletAudioOnlyChanged(event:  MatCheckboxChange): void {
-    this.bookmarkletAudioOnly = event.checked;
-    this.generated_bookmarklet_code = this.sanitizer.bypassSecurityTrustUrl(this.generateBookmarkletCode());
   }
 
   // not currently functioning on most platforms. hence not in use
@@ -307,10 +304,48 @@ export class SettingsComponent implements OnInit {
     });
   }
 
+  getDefaultDownloadAgentLabel(): string {
+    if (!this.new_config) return '';
+    const useDefault = this.new_config['Advanced']['use_default_downloading_agent'];
+    if (useDefault || !this.new_config['Advanced']['custom_downloading_agent']) {
+      return $localize`Default (built-in yt-dlp/youtube-dl downloader)`;
+    }
+    return this.new_config['Advanced']['custom_downloading_agent'];
+  }
+
+  getDefaultArgsPreview(): string {
+    if (!this.new_config) return '';
+    const output = this.new_config['Downloader']['default_file_output'] || '%(title)s';
+    const args = ['-o', `"<path>/${output}.mp4"`, '--write-info-json', '--print-json', '-f', 'bestvideo+bestaudio', '--merge-output-format', 'mp4'];
+    if (this.new_config['Downloader']['include_thumbnail']) {
+      args.push('--write-thumbnail');
+    }
+    if (this.new_config['Advanced']?.['use_cookies']) {
+      args.push('--cookies', 'appdata/cookies.txt');
+    }
+    if (!this.new_config['Advanced']?.['use_default_downloading_agent'] && this.new_config['Advanced']?.['custom_downloading_agent']) {
+      args.unshift('--external-downloader', this.new_config['Advanced']['custom_downloading_agent']);
+    }
+    return args.join(' ');
+  }
+
   getDBInfo(): void {
     this.postsService.getDBInfo().subscribe(res => {
       this.db_info = res;
     });
+  }
+
+  getDBTableCounts(): number[] {
+    if (!this.db_info?.stats_by_table) return [];
+    return Object.values(this.db_info.stats_by_table).map((table_stats: any) => table_stats.records_count);
+  }
+
+  getDBMaxTableCount(): number {
+    return Math.max(1, ...this.getDBTableCounts());
+  }
+
+  getDBTotalRecordCount(): number {
+    return this.getDBTableCounts().reduce((sum, count) => sum + count, 0);
   }
 
   transferDB(): void {

@@ -26,6 +26,12 @@ async function recFindByExt(base,ext,files,result)
 
 // outputs array of supported locales
 async function createLocalizationJSON() {
+    // xliff-to-json silently skips rewriting a .json when one already exists (even if the
+    // .xlf changed), so stale translations never get picked up unless we clear them first.
+    const existing_json_files = await recFindByExt(path.join('src', 'assets', 'i18n'), 'json');
+    for (const file of existing_json_files) {
+        fs.unlinkSync(file);
+    }
     xliffToJSON.convert('src/assets/i18n');
     const files = await recFindByExt(path.join('src', 'assets', 'i18n'), 'json');
     const locales = [];
