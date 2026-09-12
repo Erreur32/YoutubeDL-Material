@@ -6,30 +6,29 @@
 [![GitHub issues badge](https://img.shields.io/github/issues/Erreur32/YoutubeDL-Material)](https://github.com/Erreur32/YoutubeDL-Material/issues)
 [![License badge](https://img.shields.io/github/license/Erreur32/YoutubeDL-Material)](https://github.com/Erreur32/YoutubeDL-Material/blob/master/LICENSE.md)
 
-YoutubeDL-Material is a Material Design frontend for [youtube-dl](https://rg3.github.io/youtube-dl/). It's coded using [Angular 15](https://angular.io/) for the frontend, and [Node.js](https://nodejs.org/) on the backend.
-
-Now with [Docker](#Docker) support!
+YoutubeDL-Material is a self-hosted Material Design web app for downloading video/audio, built on [yt-dlp](https://github.com/yt-dlp/yt-dlp). Frontend: [Angular 15](https://angular.io/). Backend: [Node.js](https://nodejs.org/). Runs standalone or via [Docker](#-docker-recommended).
 
 <hr>
 
 ## About This Fork
 
-This repository is an actively maintained fork of the original [Tzahi12345/YoutubeDL-Material](https://github.com/Tzahi12345/YoutubeDL-Material) project, which had become unmaintained. It was revived here to keep the app working with modern `yt-dlp` releases and to continue improving it. On top of the original project, this fork adds:
+This repository is an **actively maintained fork** of the original [Tzahi12345/YoutubeDL-Material](https://github.com/Tzahi12345/YoutubeDL-Material), which is no longer maintained. It was revived to keep the app working with current `yt-dlp` releases, close security gaps, and modernize the UI.
 
-* **Security hardening** — rate limiting, CSRF protection, a fix for a zip-slip path traversal issue, sensitive-data redaction in logs, and a locked-down CORS configuration that is regularly re-verified against CodeQL scanning.
-* **No more hardcoded admin token** — a unique API token is generated automatically at install time instead of shipping with a fixed default.
-* **Redesigned Settings page** — settings are now grouped into clearer tabs (Main, Downloads, Application, Integrations, Database, Users, Browser Extensions, Logs) instead of one long list.
-* **New theme system** — dark theme by default, plus a non-pure-white light theme, with a 3-position switch (dark/light/system) that applies live without a reload.
-* **Dependency and CI maintenance** — outdated/unused SDKs removed, vulnerable packages patched, an ESLint security-rule gate added to CI ahead of CodeQL, and Docker images published to the [GitHub Container Registry](https://github.com/Erreur32/YoutubeDL-Material/pkgs/container/youtubedl-material) under this fork.
-* Assorted bug fixes (login/CSRF interaction, config loading crashes, translation loading, memory usage of the dev server, reverse-proxy header handling, etc.).
+| | Original project | This fork |
+|---|---|---|
+| Maintenance | Archived, no longer updated | Actively maintained |
+| Download engine | `youtube-dl` | `yt-dlp` (kept up to date) |
+| Admin API token | Hardcoded default | Randomly generated at install |
+| CORS | Basic/reflective | Hardened allowlist, verified against CodeQL |
+| Security | — | Rate limiting, CSRF protection, zip-slip fix, log redaction |
+| Settings page | One long list | Reorganized into 8 focused tabs |
+| Theme | Light/dark toggle | Dark by default, non-white light theme, live 3-way switch (dark/light/system) |
+| CI | Tests only | Tests + ESLint security gate + CodeQL, Docker images published to GHCR |
 
 Issues and pull requests are welcome on this fork's [issue tracker](https://github.com/Erreur32/YoutubeDL-Material/issues).
 
-## Getting Started
-
-Check out the prerequisites, and go to the [installation](#Installing) section. Easy as pie!
-
-Here's an image of what it'll look like once you're done:
+<details>
+<summary><strong>Screenshots</strong></summary>
 
 <img src="https://i.imgur.com/C6vFGbL.png" width="800">
 
@@ -37,97 +36,25 @@ Dark mode:
 
 <img src="https://i.imgur.com/vOtvH5w.png" width="800">
 
-### Prerequisites
-
-NOTE: If you would like to use Docker, you can skip down to the [Docker](#Docker) section for a setup guide.
-
-Required dependencies:
-
-* Node.js 16
-* Python
-
-Optional dependencies:
-
-* AtomicParsley (for embedding thumbnails, package name `atomicparsley`)
-* [Twitch Downloader CLI](https://github.com/lay295/TwitchDownloader) (for downloading Twitch VOD chats)
-
-<details>
-  <summary>Debian/Ubuntu</summary>
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-sudo apt-get install nodejs youtube-dl ffmpeg unzip python npm
-```
-
 </details>
 
+<hr>
+
+## Getting Started
+
+The fastest way to run YoutubeDL-Material is [Docker](#-docker-recommended). Prefer running it directly on your machine instead? See [Manual installation](#-manual-installation) or [Build it yourself](#-build-it-yourself--development).
+
 <details>
-  <summary>CentOS 7</summary>
-
-```bash
-sudo yum install epel-release
-sudo yum localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm
-sudo yum install centos-release-scl-rh
-sudo yum install rh-nodejs12
-scl enable rh-nodejs12 bash
-curl -fsSL https://rpm.nodesource.com/setup_16.x | sudo bash -
-sudo yum install nodejs youtube-dl ffmpeg ffmpeg-devel
-```
-
-</details>
-
-### Installing
-
-If you are using Docker, skip to the [Docker](#Docker) section. Otherwise, continue:
-
-1. First, download the [latest release](https://github.com/Erreur32/YoutubeDL-Material/releases/latest)!
-
-2. Drag the `youtubedl-material` directory to an easily accessible directory. Navigate to the `appdata` folder and edit the `default.json` file.
-
-NOTE: If you are intending to use a [reverse proxy](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Reverse-Proxy-Setup), this next step is not necessary
-
-3. Port forward the port listed in `default.json`, which defaults to `17442`.
-
-4. Once the configuration is done, run `npm install` to install all the backend dependencies. Once that is finished, type `npm start`. This will run the backend server, which serves the frontend as well. On your browser, navigate to to the server (url with the specified port). Try putting in a youtube link to see if it works. If it does, viola! YoutubeDL-Material is now up and running.
-
-If you experience problems, know that it's usually caused by a configuration problem. The first thing you should do is check the console. To get there, right click anywhere on the page and click "Inspect element." Then on the menu that pops up, click console. Look at the error there, and try to investigate.
-
-## Build it yourself
-
-If you'd like to install YoutubeDL-Material, go to the Installation section. If you want to build it yourself and/or develop the repository, then this section is for you.
-
-To deploy, simply clone the repository, and go into the `youtubedl-material` directory. Type `npm install` and all the dependencies will install. Then type `cd backend` and again type `npm install` to install the dependencies for the backend.
-
-Once you do that, you're almost up and running. All you need to do is edit the configuration in `youtubedl-material/appdata`, go back into the `youtubedl-material` directory, and type `npm run build`. This will build the app, and put the output files in the `youtubedl-material/backend/public` folder.
-
-Lastly, type `npm -g install pm2` to install pm2 globally.
-
-The frontend is now complete. The backend is much easier. Just go into the `backend` folder, and type `npm start`.
-
-Finally, if you want your instance to be available from outside your network, you can set up a [reverse proxy](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Reverse-Proxy-Setup).
-
-Alternatively, you can port forward the port specified in the config (defaults to `17442`) and point it to the server's IP address. Make sure the port is also allowed through the server's firewall.
-
-## Docker
-
-### Host-specific instructions
-
-If you're on a Synology NAS, unRAID, Raspberry Pi 4 or any other possible special case you can check if there's known issues or instructions both in the issue tracker and in the [Wiki!](https://github.com/Tzahi12345/YoutubeDL-Material/wiki#environment-specific-guideshelp)
-
-### Setup
-
-If you are looking to setup YoutubeDL-Material with Docker, this section is for you. And you're in luck! Docker setup is quite simple.
+<summary><strong>🐳 Docker (recommended)</strong></summary>
 
 The image is published to the [GitHub Container Registry](https://github.com/Erreur32/YoutubeDL-Material/pkgs/container/youtubedl-material) (`ghcr.io/erreur32/youtubedl-material`).
 
-1. Run `curl -L https://github.com/Erreur32/YoutubeDL-Material/releases/latest/download/docker-compose.yml -o docker-compose.yml` to download the latest Docker Compose, or go to the [releases](https://github.com/Erreur32/YoutubeDL-Material/releases/) page to grab the version you'd like.
-2. Run `docker-compose pull`. This will download the official YoutubeDL-Material docker image.
-3. Run `docker-compose up` to start it up. If successful, it should say "HTTP(S): Started on port 17443" or something similar. This tells you the *container-internal* port of the application. Please check your `docker-compose.yml` file for the *external* port. If you downloaded the file as described above, it defaults to **8998**.
-4. Make sure you can connect to the specified URL + *external* port, and if so, you are done!
+1. `curl -L https://github.com/Erreur32/YoutubeDL-Material/releases/latest/download/docker-compose.yml -o docker-compose.yml` (or grab a specific version from the [releases](https://github.com/Erreur32/YoutubeDL-Material/releases/) page).
+2. `docker-compose pull`
+3. `docker-compose up` — on success you'll see something like `HTTP(S): Started on port 17443` (the *container-internal* port). Check `docker-compose.yml` for the *external* port, which defaults to **8998**.
+4. Open the server's URL on that external port in your browser.
 
-### Custom UID/GID
-
-By default, the Docker container runs as non-root with UID=1000 and GID=1000. To set this to your own UID/GID, simply update the `environment` section in your `docker-compose.yml` like so:
+**Custom UID/GID**: the container runs as non-root (UID=1000, GID=1000) by default. Override it in `docker-compose.yml`:
 
 ```yml
 environment:
@@ -135,50 +62,85 @@ environment:
     GID: YOUR_GID
 ```
 
-## MongoDB
+If you're on a Synology NAS, unRAID, Raspberry Pi 4 or another special case, check the issue tracker and the [Wiki](https://github.com/Tzahi12345/YoutubeDL-Material/wiki#environment-specific-guideshelp) for known quirks.
 
-For much better scaling with large datasets please run your YoutubeDL-Material instance with MongoDB backend rather than the json file-based default. It will fix a lot of performance problems (especially with datasets in the tens of thousands videos/audios)!
+</details>
 
-[Tutorial](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Setting-a-MongoDB-backend-to-use-as-database-provider-for-YTDL-M).
+<details>
+<summary><strong>📦 Manual installation</strong></summary>
 
-## API
+**Required**: Node.js 16, Python.
+**Optional**: AtomicParsley (thumbnail embedding, package `atomicparsley`), [Twitch Downloader CLI](https://github.com/lay295/TwitchDownloader) (Twitch VOD chat downloads).
 
-[API Docs](https://youtubedl-material.stoplight.io/docs/youtubedl-material/Public%20API%20v1.yaml)
+Debian/Ubuntu:
 
-To get started, go to the settings menu and enable the public API from the *Extra* tab. You can generate an API key if one is missing.
+```bash
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt-get install nodejs youtube-dl ffmpeg unzip python npm
+```
 
-Once you have enabled the API and have the key, you can start sending requests by adding the query param `apiKey=API_KEY`. Replace `API_KEY` with your actual API key, and you should be good to go! Nearly all of the backend should be at your disposal. View available endpoints in the link above.
+Steps:
 
-## iOS Shortcut 
+1. Download the [latest release](https://github.com/Erreur32/YoutubeDL-Material/releases/latest) and extract the `youtubedl-material` directory somewhere convenient.
+2. Edit `appdata/default.json` to taste.
+3. Port forward the port set in `default.json` (default `17442`) — skip this if you're using a [reverse proxy](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Reverse-Proxy-Setup).
+4. Run `npm install`, then `npm start`. Open the server's URL in your browser and try downloading a video to confirm it works.
 
-If you are using iOS, try YoutubeDL-Material more conveniently with a Shortcut. With this Shortcut, you can easily start downloading YouTube video with just two taps! (Or maybe three?)
+If something goes wrong, it's usually a configuration issue — check the browser console (right click → Inspect → Console) for errors.
 
-You can download Shortcut [here.](https://routinehub.co/shortcut/10283/)
+</details>
+
+<details>
+<summary><strong>🛠️ Build it yourself / development</strong></summary>
+
+1. Clone the repository, `cd youtubedl-material`, run `npm install`.
+2. `cd backend`, run `npm install` again for backend dependencies.
+3. Edit the configuration in `youtubedl-material/appdata`.
+4. From `youtubedl-material`, run `npm run build` — output goes to `backend/public`.
+5. `npm -g install pm2` (optional, for process management).
+6. `cd backend`, run `npm start`.
+
+To expose your instance outside your network, either set up a [reverse proxy](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Reverse-Proxy-Setup), or port forward the configured port (default `17442`) to the server and allow it through the firewall.
+
+</details>
+
+<details>
+<summary><strong>🗄️ MongoDB (optional, for large libraries)</strong></summary>
+
+For much better scaling with large datasets (tens of thousands of videos/audios), run YoutubeDL-Material with a MongoDB backend instead of the default JSON file storage. See the [setup tutorial](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Setting-a-MongoDB-backend-to-use-as-database-provider-for-YTDL-M).
+
+</details>
+
+<details>
+<summary><strong>🔌 API</strong></summary>
+
+[API docs](https://youtubedl-material.stoplight.io/docs/youtubedl-material/Public%20API%20v1.yaml)
+
+Enable the public API from Settings → *Integrations*, and generate an API key if one is missing. Then add `apiKey=API_KEY` as a query param to your requests — nearly the whole backend is available through the API.
+
+</details>
+
+<details>
+<summary><strong>📱 iOS Shortcut</strong></summary>
+
+Download videos with two taps using this [iOS Shortcut](https://routinehub.co/shortcut/10283/).
+
+</details>
 
 ## Contributing
 
-If you're interested in contributing, first: awesome! Second, please refer to the guidelines/setup information located in the [Contributing](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Contributing) wiki page, it's a helpful way to get you on your feet and coding away.
-
-Pull requests are always appreciated! If you're a bit rusty with coding, that's no problem: we can always help you learn. And if that's too scary, that's OK too! You can create issues for features you'd like to see or bugs you encounter, it all helps this project grow.
-
-If you're interested in translating the app into a new language, check out the [Translate](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Translate) wiki page.
+Contributions are welcome! See the [Contributing](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Contributing) wiki page to get started, or open an [issue](https://github.com/Erreur32/YoutubeDL-Material/issues) for bugs/feature requests. Interested in translations? See the [Translate](https://github.com/Tzahi12345/YoutubeDL-Material/wiki/Translate) wiki page.
 
 ## Authors
 
-* **Isaac Grynsztein** ([Tzahi12345](https://github.com/Tzahi12345)) - *Original creator*
-* **Erreur32** - *Current maintainer*
+* **Isaac Grynsztein** ([Tzahi12345](https://github.com/Tzahi12345)) — *Original creator*
+* **Erreur32** — *Current maintainer*
 
-Official translators:
-
-* Spanish - tzahi12345
-* German - UnlimitedCookies
-* Chinese - TyRoyal
-
-See also the list of [contributors](https://github.com/Tzahi12345/YoutubeDL-Material/graphs/contributors) who participated in this project.
+Official translators: Spanish (tzahi12345), German (UnlimitedCookies), Chinese (TyRoyal). See also the full list of [contributors](https://github.com/Tzahi12345/YoutubeDL-Material/graphs/contributors).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+MIT — see [LICENSE.md](LICENSE.md).
 
 ## Legal Disclaimer
 
@@ -186,5 +148,5 @@ This project is in no way affiliated with Google LLC, Alphabet Inc. or YouTube (
 
 ## Acknowledgments
 
-* youtube-dl
+* [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 * [AllTube](https://github.com/Rudloff/alltube) (for the inspiration)

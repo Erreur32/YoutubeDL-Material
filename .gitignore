@@ -85,3 +85,8 @@ backend/video/
 backend/subscriptions/
 backend/users/
 .dev-logs/
+
+# AI assistant tooling (local-only, never tracked)
+.claude/
+.opencode/
+CLAUDE.md
