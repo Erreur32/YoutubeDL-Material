@@ -1,4 +1,5 @@
 const { v4: uuid } = require('uuid');
+const os = require('os');
 const fs = require('fs-extra');
 const { promisify } = require('util');
 const auth_api = require('./authentication/auth');
@@ -595,23 +596,42 @@ function loadConfigValues() {
 
 // in dev mode the frontend is served by a separate `ng serve` process, on the default
 // port (4200) or the port used by dev-start.sh (4310), and may be reached over LAN via
-// any hostname/IP (not just localhost) - see posts.services.ts, which builds the API
-// URL from window.location.hostname for that reason. Only ever allow origins on those
-// two known-safe dev ports - never reflect an arbitrary port/origin back, since combined
-// with Access-Control-Allow-Credentials that would let any external site make
-// credentialed requests against this API (CORS credential leak). This branch only ever
-// runs when debugMode is set (YTDL_MODE=dev), never in production.
+// this machine's own IP (not just localhost) - see posts.services.ts, which builds the
+// API URL from window.location.hostname for that reason. The allowlist is built only
+// from this machine's own network interface addresses (never from request data), so an
+// unrelated external host bound to the same port can never match. Matches are returned
+// as the allowlist entry itself (never req.headers.origin) so the response header is
+// always built from a hardcoded literal, not request data - combined with
+// Access-Control-Allow-Credentials that would otherwise be a CORS credential leak. This
+// branch only ever runs when debugMode is set (YTDL_MODE=dev), never in production.
 const DEV_ORIGIN_PORTS = ['4200', '4310'];
+
+function getDevOriginAllowlist() {
+    const hosts = ['localhost', '127.0.0.1'];
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name]) {
+            if (!iface.internal) hosts.push(iface.family === 'IPv6' ? `[${iface.address}]` : iface.address);
+        }
+    }
+
+    const allowlist = [];
+    for (const host of hosts) {
+        for (const port of DEV_ORIGIN_PORTS) {
+            allowlist.push(`http://${host}:${port}`);
+        }
+    }
+    return allowlist;
+}
+
+const DEV_ORIGIN_ALLOWLIST = getDevOriginAllowlist();
 
 function getOrigin(req) {
     if (process.env.CODESPACES) return `https://${process.env.CODESPACE_NAME}-4200.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
-    if (debugMode && req && req.headers.origin) {
-        try {
-            const origin_url = new URL(req.headers.origin);
-            if (origin_url.protocol === 'http:' && DEV_ORIGIN_PORTS.includes(origin_url.port)) {
-                return req.headers.origin;
-            }
-        } catch (e) { /* malformed Origin header - fall through to the default below */ }
+    if (debugMode && req) {
+        for (const allowed_origin of DEV_ORIGIN_ALLOWLIST) {
+            if (req.headers.origin === allowed_origin) return allowed_origin;
+        }
     }
     return url_domain.origin;
 }
