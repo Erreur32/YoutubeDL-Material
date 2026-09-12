@@ -12,6 +12,19 @@ Now with [Docker](#Docker) support!
 
 <hr>
 
+## About This Fork
+
+This repository is an actively maintained fork of the original [Tzahi12345/YoutubeDL-Material](https://github.com/Tzahi12345/YoutubeDL-Material) project, which had become unmaintained. It was revived here to keep the app working with modern `yt-dlp` releases and to continue improving it. On top of the original project, this fork adds:
+
+* **Security hardening** — rate limiting, CSRF protection, a fix for a zip-slip path traversal issue, sensitive-data redaction in logs, and a locked-down CORS configuration that is regularly re-verified against CodeQL scanning.
+* **No more hardcoded admin token** — a unique API token is generated automatically at install time instead of shipping with a fixed default.
+* **Redesigned Settings page** — settings are now grouped into clearer tabs (Main, Downloads, Application, Integrations, Database, Users, Browser Extensions, Logs) instead of one long list.
+* **New theme system** — dark theme by default, plus a non-pure-white light theme, with a 3-position switch (dark/light/system) that applies live without a reload.
+* **Dependency and CI maintenance** — outdated/unused SDKs removed, vulnerable packages patched, an ESLint security-rule gate added to CI ahead of CodeQL, and Docker images published to the [GitHub Container Registry](https://github.com/Erreur32/YoutubeDL-Material/pkgs/container/youtubedl-material) under this fork.
+* Assorted bug fixes (login/CSRF interaction, config loading crashes, translation loading, memory usage of the dev server, reverse-proxy header handling, etc.).
+
+Issues and pull requests are welcome on this fork's [issue tracker](https://github.com/Erreur32/YoutubeDL-Material/issues).
+
 ## Getting Started
 
 Check out the prerequisites, and go to the [installation](#Installing) section. Easy as pie!
