@@ -32,6 +32,7 @@ export class SortPropertyComponent {
   
   @Input() sortProperty = 'registered';
   @Input() descendingMode = true;
+  @Input() cardSize = 'medium';
 
   @Output() sortPropertyChange = new EventEmitter<string>();
   @Output() descendingModeChange = new EventEmitter<boolean>();

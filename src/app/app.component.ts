@@ -211,7 +211,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   openProfileDialog(): void {
     this.dialog.open(UserProfileDialogComponent, {
-      width: '60vw'
+      width: '420px',
+      maxWidth: '90vw'
     });
   }
 
