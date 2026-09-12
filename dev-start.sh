@@ -27,7 +27,7 @@ start() {
     (cd "$ROOT_DIR" && node src/postbuild.mjs > "$LOG_DIR/postbuild.log" 2>&1) || true
 
     echo "Demarrage du frontend (ng serve, port 4310)..."
-    (cd "$ROOT_DIR" && nohup npx ng serve --host 0.0.0.0 --port 4310 --disable-host-check > "$FRONTEND_LOG" 2>&1 &
+    (cd "$ROOT_DIR" && NODE_OPTIONS="--max-old-space-size=2048" nohup npx ng serve --host 0.0.0.0 --port 4310 --disable-host-check > "$FRONTEND_LOG" 2>&1 &
      echo $! > "$FRONTEND_PID_FILE")
   fi
 

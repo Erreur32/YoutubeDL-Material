@@ -594,24 +594,24 @@ function loadConfigValues() {
 }
 
 // in dev mode the frontend is served by a separate `ng serve` process, on the default
-// port (4200) or the port used by dev-start.sh (4310). Only ever allow this fixed,
-// hardcoded set of known-safe local origins - never reflect an arbitrary
-// request-supplied Origin header back, since combined with
-// Access-Control-Allow-Credentials that would let any external site make
-// credentialed requests against this API (CORS credential leak).
-const DEV_ORIGIN_ALLOWLIST = [
-    'http://localhost:4200', 'http://127.0.0.1:4200',
-    'http://localhost:4310', 'http://127.0.0.1:4310'
-];
+// port (4200) or the port used by dev-start.sh (4310), and may be reached over LAN via
+// any hostname/IP (not just localhost) - see posts.services.ts, which builds the API
+// URL from window.location.hostname for that reason. Only ever allow origins on those
+// two known-safe dev ports - never reflect an arbitrary port/origin back, since combined
+// with Access-Control-Allow-Credentials that would let any external site make
+// credentialed requests against this API (CORS credential leak). This branch only ever
+// runs when debugMode is set (YTDL_MODE=dev), never in production.
+const DEV_ORIGIN_PORTS = ['4200', '4310'];
 
 function getOrigin(req) {
     if (process.env.CODESPACES) return `https://${process.env.CODESPACE_NAME}-4200.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
-    // Returns the matching allowlist entry itself (never req.headers.origin) so the
-    // response header is always built from a hardcoded literal, not request data.
-    if (debugMode && req) {
-        for (const allowed_origin of DEV_ORIGIN_ALLOWLIST) {
-            if (req.headers.origin === allowed_origin) return allowed_origin;
-        }
+    if (debugMode && req && req.headers.origin) {
+        try {
+            const origin_url = new URL(req.headers.origin);
+            if (origin_url.protocol === 'http:' && DEV_ORIGIN_PORTS.includes(origin_url.port)) {
+                return req.headers.origin;
+            }
+        } catch (e) { /* malformed Origin header - fall through to the default below */ }
     }
     return url_domain.origin;
 }

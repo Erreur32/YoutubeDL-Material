@@ -2085,6 +2085,60 @@
         </context-group>
         <note priority="1" from="description">Login expiration select label</note>
       </trans-unit>
+      <trans-unit id="d5887751126dd178ab5e4390aab7fddfb4183aa4" datatype="html">
+        <source>1 Hour</source>
+        <target>1 heure</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">96</context>
+        </context-group>
+        <note priority="1" from="description">1 hour expiration option</note>
+      </trans-unit>
+      <trans-unit id="27eb10916f82b03a3f792459155086ff17c11976" datatype="html">
+        <source>1 Day</source>
+        <target>1 jour</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+        <note priority="1" from="description">1 day expiration option</note>
+      </trans-unit>
+      <trans-unit id="cf85f0d5e0344908cb9aec78df830c10c86bce3f" datatype="html">
+        <source>1 Week</source>
+        <target>1 semaine</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+        <note priority="1" from="description">1 week expiration option</note>
+      </trans-unit>
+      <trans-unit id="6149963f7b6e8339a7db40be653830239841e51b" datatype="html">
+        <source>1 Month</source>
+        <target>1 mois</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+        <note priority="1" from="description">1 month expiration option</note>
+      </trans-unit>
+      <trans-unit id="ab102e798754de9510d2434b0a2cf2e55cadfa86" datatype="html">
+        <source>1 Year</source>
+        <target>1 an</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+        <note priority="1" from="description">1 year expiration option</note>
+      </trans-unit>
+      <trans-unit id="7d3070625fae32b50d77adb27a7eb4193d017f6a" datatype="html">
+        <source>How long a user stays logged in before needing to sign in again.</source>
+        <target>Durée pendant laquelle un utilisateur reste connecté avant de devoir se reconnecter.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">102</context>
+        </context-group>
+        <note priority="1" from="description">Login expiration hint</note>
+      </trans-unit>
       <trans-unit id="0c43af932e6a4ee85500e28f01b3538b4eb27bc4" datatype="html">
         <source>Log Level</source>
         <target>Niveau de journal</target>
@@ -5094,6 +5148,105 @@
           <context context-type="sourcefile">src/app/subscription/subscription/subscription.component.html</context>
           <context context-type="linenumber">18</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="8feae37f68766615de01f2515a1782fd37d29686" datatype="html">
+        <source>Verbosity of server logs. Use Info for normal use.</source>
+        <target>Niveau de détail des journaux du serveur. Utilisez Info pour un usage normal.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">388</context>
+        </context-group>
+        <note priority="1" from="description">Log level hint</note>
+      </trans-unit>
+      <trans-unit id="9dda2b3979840600cc0ff697fa08cfd34e5cd31a" datatype="html">
+        <source>RSS Feed</source>
+        <target>Flux RSS</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">484</context>
+        </context-group>
+        <note priority="1" from="description">RSS feed section title</note>
+      </trans-unit>
+      <trans-unit id="581cc8904d48b69801c7719f331c078da7606888" datatype="html">
+        <source>Storage backend status, table statistics and migration.</source>
+        <target>État du stockage, statistiques des tables et migration.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">504</context>
+        </context-group>
+        <note priority="1" from="description">Database settings panel description</note>
+      </trans-unit>
+      <trans-unit id="91b618657b394ef2aff7220b31080bff79f4885a" datatype="html">
+        <source>is currently active</source>
+        <target>est actuellement active</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">521</context>
+        </context-group>
+        <note priority="1" from="description">Database currently active label</note>
+      </trans-unit>
+      <trans-unit id="006b0a999d57365a332bde5fc1e282e08d552074" datatype="html">
+        <source>Data is stored in a local JSON file. Use MongoDB for better performance with large libraries.</source>
+        <target>Les données sont stockées dans un fichier JSON local. Utilisez MongoDB pour de meilleures performances avec de grandes bibliothèques.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">523</context>
+        </context-group>
+        <note priority="1" from="description">Local DB hint</note>
+      </trans-unit>
+      <trans-unit id="62ce688ea13cb2eb65a0b071b380a969dfb79afb" datatype="html">
+        <source>Connected to an external MongoDB instance.</source>
+        <target>Connecté à une instance MongoDB externe.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">524</context>
+        </context-group>
+        <note priority="1" from="description">MongoDB DB hint</note>
+      </trans-unit>
+      <trans-unit id="1d052b84d07663e183358109e5be0730eb4c7533" datatype="html">
+        <source>Total records across all tables</source>
+        <target>Total des enregistrements sur toutes les tables</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">528</context>
+        </context-group>
+        <note priority="1" from="description">Total records across all tables label</note>
+      </trans-unit>
+      <trans-unit id="6c5c7f46231dc765b57c5222e19b901b4c451a2c" datatype="html">
+        <source>Table Statistics</source>
+        <target>Statistiques des tables</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">534</context>
+        </context-group>
+        <note priority="1" from="description">Table statistics section title</note>
+      </trans-unit>
+      <trans-unit id="5f79e6a2b65e92ad6beca24b07f31e6f90691679" datatype="html">
+        <source>MongoDB &amp; Migration</source>
+        <target>MongoDB et migration</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">551</context>
+        </context-group>
+        <note priority="1" from="description">MongoDB migration section title</note>
+      </trans-unit>
+      <trans-unit id="309fdd6915480baf6a3cfbf2ec162caddc481097" datatype="html">
+        <source>Docker:</source>
+        <target>Docker :</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">559</context>
+        </context-group>
+        <note priority="1" from="description">MongoDB Docker example prefix</note>
+      </trans-unit>
+      <trans-unit id="5bae2366269367c5f773747af4be1c6727a407dc" datatype="html">
+        <source>Moves all existing records to the target storage backend. This can take a while for large libraries.</source>
+        <target>Déplace tous les enregistrements existants vers le stockage cible. Cela peut prendre du temps pour de grandes bibliothèques.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/settings/settings.component.html</context>
+          <context context-type="linenumber">572</context>
+        </context-group>
+        <note priority="1" from="description">Transfer DB hint</note>
       </trans-unit>
     </body>
   </file>
