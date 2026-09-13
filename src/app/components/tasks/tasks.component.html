@@ -1,6 +1,12 @@
-<div [hidden]="!(tasks && tasks.length > 0)">
-    <div style="overflow: hidden;" [ngClass]="'mat-elevation-z8'">
-        <mat-table style="overflow: hidden" matSort [dataSource]="dataSource">
+<div class="tasks-page">
+    <div class="tasks-topbar">
+        <span class="tasks-topbar-title" i18n="Tasks page title">Tasks</span>
+    </div>
+</div>
+
+<div class="tasks-page" [hidden]="!(tasks && tasks.length > 0)">
+    <div class="tasks-table-card">
+        <mat-table matSort [dataSource]="dataSource">
           <!-- Title Column -->
           <ng-container matColumnDef="title">
             <mat-header-cell *matHeaderCellDef mat-sort-header> <ng-container i18n="Title">Title</ng-container> </mat-header-cell>
@@ -28,7 +34,7 @@
                 <ng-container i18n="N/A" *ngIf="!element.last_confirmed">N/A</ng-container>
             </mat-cell>
           </ng-container>
-      
+
           <!-- Status Column -->
           <ng-container matColumnDef="status">
             <mat-header-cell *matHeaderCellDef mat-sort-header> <ng-container i18n="Status">Status</ng-container> </mat-header-cell>
@@ -84,21 +90,26 @@
                 </div>
             </mat-cell>
           </ng-container>
-      
+
             <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
             <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
         </mat-table>
-      
+
         <mat-paginator [pageSizeOptions]="[10, 20]"
-                       showFirstLastButtons 
+                       showFirstLastButtons
                        aria-label="Select page of tasks">
         </mat-paginator>
       </div>
 
-      <button style="margin-top: 10px; margin-left: 5px;" mat-stroked-button (click)="openRestoreDBBackupDialog()" i18n="Restore DB from backup button">Restore DB from backup</button>
-      <button style="margin-top: 10px; margin-left: 5px;" mat-stroked-button (click)="resetTasks()" color="warn" i18n="Reset tasks button">Reset tasks</button>
+      <div class="tasks-actionbar">
+        <button mat-stroked-button (click)="openRestoreDBBackupDialog()" i18n="Restore DB from backup button">Restore DB from backup</button>
+        <button mat-stroked-button (click)="resetTasks()" color="warn" i18n="Reset tasks button">Reset tasks</button>
+      </div>
 </div>
 
-<div *ngIf="(!tasks || tasks.length === 0) && tasks_retrieved">
-  <h4 style="text-align: center; margin-top: 10px;" i18n="No tasks label">No tasks available!</h4>
+<div *ngIf="(!tasks || tasks.length === 0) && tasks_retrieved" class="tasks-page">
+  <div class="tasks-empty-card">
+    <mat-icon>checklist</mat-icon>
+    <h4 i18n="No tasks label">No tasks available!</h4>
+  </div>
 </div>

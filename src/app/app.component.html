@@ -45,20 +45,41 @@
     </div>
     <div class="sidenav-container" style="height: calc(100% - 64px)">
         <mat-sidenav-container style="height: 100%">
-            <mat-sidenav [opened]="postsService.sidepanel_mode === 'side' && !window.location.href.includes('/player')" [mode]="postsService.sidepanel_mode" #sidenav>
-                <mat-nav-list>
-                    <a *ngIf="postsService.config && (!postsService.config.Advanced.multi_user_mode || postsService.isLoggedIn)" mat-list-item (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null" routerLink='/home'><ng-container i18n="Navigation menu Home Page title">Home</ng-container></a>
-                    <a *ngIf="postsService.config && postsService.config.Advanced.multi_user_mode && !postsService.isLoggedIn" mat-list-item (click)="sidenav.close()" routerLink='/login'><ng-container i18n="Navigation menu Login Page title">Login</ng-container></a>
-                    <a *ngIf="postsService.config && allowSubscriptions && postsService.hasPermission('subscriptions')" mat-list-item (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null" routerLink='/subscriptions'><ng-container i18n="Navigation menu Subscriptions Page title">Subscriptions</ng-container></a>
-                    <a *ngIf="postsService.config && enableDownloadsManager && postsService.hasPermission('downloads_manager')" mat-list-item (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null" routerLink='/downloads'><ng-container i18n="Navigation menu Downloads Page title">Downloads</ng-container></a>
-                    <a *ngIf="postsService.config && postsService.hasPermission('tasks_manager')" mat-list-item (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null" routerLink='/tasks'><ng-container i18n="Navigation menu Tasks Page title">Tasks</ng-container></a>
+            <mat-sidenav class="side-nav" [opened]="postsService.sidepanel_mode === 'side' && !window.location.href.includes('/player')" [mode]="postsService.sidepanel_mode" #sidenav>
+                <mat-nav-list class="side-nav-list">
+                    <a *ngIf="postsService.config && (!postsService.config.Advanced.multi_user_mode || postsService.isLoggedIn)" class="side-nav-link" mat-list-item routerLink='/home' routerLinkActive #rlaHome="routerLinkActive" [routerLinkActiveOptions]="{exact: true}" [activated]="rlaHome.isActive" (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null">
+                        <mat-icon matListItemIcon>home</mat-icon>
+                        <ng-container i18n="Navigation menu Home Page title">Home</ng-container>
+                    </a>
+                    <a *ngIf="postsService.config && postsService.config.Advanced.multi_user_mode && !postsService.isLoggedIn" class="side-nav-link" mat-list-item routerLink='/login' routerLinkActive #rlaLogin="routerLinkActive" [routerLinkActiveOptions]="{exact: true}" [activated]="rlaLogin.isActive" (click)="sidenav.close()">
+                        <mat-icon matListItemIcon>login</mat-icon>
+                        <ng-container i18n="Navigation menu Login Page title">Login</ng-container>
+                    </a>
+                    <a *ngIf="postsService.config && enableDownloadsManager && postsService.hasPermission('downloads_manager')" class="side-nav-link" mat-list-item routerLink='/downloads' routerLinkActive #rlaDownloads="routerLinkActive" [routerLinkActiveOptions]="{exact: true}" [activated]="rlaDownloads.isActive" (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null">
+                        <mat-icon matListItemIcon>cloud_download</mat-icon>
+                        <ng-container i18n="Navigation menu Downloads Page title">Downloads</ng-container>
+                    </a>
+                    <a *ngIf="postsService.config && allowSubscriptions && postsService.hasPermission('subscriptions')" class="side-nav-link" mat-list-item routerLink='/subscriptions' routerLinkActive #rlaSubs="routerLinkActive" [routerLinkActiveOptions]="{exact: true}" [activated]="rlaSubs.isActive" (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null">
+                        <mat-icon matListItemIcon>subscriptions</mat-icon>
+                        <ng-container i18n="Navigation menu Subscriptions Page title">Subscriptions</ng-container>
+                    </a>
+                    <a *ngIf="postsService.config && postsService.hasPermission('tasks_manager')" class="side-nav-link" mat-list-item routerLink='/tasks' routerLinkActive #rlaTasks="routerLinkActive" [routerLinkActiveOptions]="{exact: true}" [activated]="rlaTasks.isActive" (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null">
+                        <mat-icon matListItemIcon>checklist</mat-icon>
+                        <ng-container i18n="Navigation menu Tasks Page title">Tasks</ng-container>
+                    </a>
                     <ng-container *ngIf="postsService.config && postsService.hasPermission('settings')">
-                        <mat-divider></mat-divider>
-                        <a mat-list-item (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null" routerLink='/settings'><ng-container i18n="Settings menu label">Settings</ng-container></a>
+                        <mat-divider class="side-nav-divider"></mat-divider>
+                        <a class="side-nav-link" mat-list-item routerLink='/settings' routerLinkActive #rlaSettings="routerLinkActive" [routerLinkActiveOptions]="{exact: true}" [activated]="rlaSettings.isActive" (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null">
+                            <mat-icon matListItemIcon>settings</mat-icon>
+                            <ng-container i18n="Settings menu label">Settings</ng-container>
+                        </a>
                     </ng-container>
                     <ng-container *ngIf="postsService.config && allowSubscriptions && postsService.subscriptions && postsService.hasPermission('subscriptions')">
-                        <mat-divider *ngIf="postsService.subscriptions.length > 0"></mat-divider>
-                        <a *ngFor="let subscription of postsService.subscriptions" mat-list-item (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null" [routerLink]="['/subscription', { id: subscription.id }]"><ngx-avatars [style.display]="'inline-block'" [style.margin-right]="'10px'" size="32" [name]="subscription.name"></ngx-avatars>{{subscription.name}}</a>
+                        <mat-divider class="side-nav-divider" *ngIf="postsService.subscriptions.length > 0"></mat-divider>
+                        <a *ngFor="let subscription of postsService.subscriptions" class="side-nav-link side-nav-link--sub" mat-list-item [routerLink]="['/subscription', { id: subscription.id }]" routerLinkActive #rlaSub="routerLinkActive" [activated]="rlaSub.isActive" (click)="postsService.sidepanel_mode === 'over' ? sidenav.close() : null">
+                            <ngx-avatars matListItemIcon size="28" [name]="subscription.name"></ngx-avatars>
+                            <span class="side-nav-sub-label">{{subscription.name}}</span>
+                        </a>
                     </ng-container>
                 </mat-nav-list>
             </mat-sidenav>

@@ -39,6 +39,64 @@
     z-index: -1 !important;
 }
 
+/* Side navigation - same design tokens/typography as the Settings page
+   (.settings-nav-item) so the drawer and Settings feel like one system.
+   The <a mat-list-item> host and any element written directly in this
+   template (icons, avatars) live in app.component's own view, so plain
+   selectors reach them without ::ng-deep; only MatListItem's *internal*
+   markup (ripple, text wrapper) would need that. */
+.side-nav {
+    background: var(--ytdl-surface-1);
+    border-right: 1px solid var(--ytdl-border);
+}
+
+.side-nav-list {
+    padding: 8px 6px;
+}
+
+.side-nav-divider.mat-divider {
+    border-top-color: var(--ytdl-border);
+    margin: 6px 8px;
+}
+
+.side-nav-link.mat-mdc-list-item {
+    margin: 2px 8px;
+    border-radius: var(--ytdl-radius-sm, 8px);
+    color: var(--ytdl-text-secondary);
+    font-size: 14px;
+}
+
+.side-nav-link .mat-mdc-list-item-icon {
+    color: var(--ytdl-text-tertiary);
+}
+
+.side-nav-link.mat-mdc-list-item:hover {
+    background-color: var(--ytdl-surface-2);
+    color: var(--ytdl-text-primary);
+}
+
+.side-nav-link.mdc-list-item--activated {
+    background-color: var(--ytdl-surface-2);
+    color: var(--ytdl-text-primary);
+    font-weight: 500;
+}
+
+.side-nav-link.mdc-list-item--activated .mat-mdc-list-item-icon {
+    color: var(--ytdl-accent);
+}
+
+.side-nav-link--sub.mat-mdc-list-item {
+    font-size: 13px;
+}
+
+.side-nav-sub-label {
+    display: block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .top-toolbar {
     height: 64px;
     background: unset;

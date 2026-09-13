@@ -1,3 +1,97 @@
+// Layout is built entirely on the --ytdl-* design tokens (see src/styles.scss),
+// same visual language as the Settings/Downloads pages, so it stays correct
+// across every theme (default/dark/light) without any theme-specific
+// overrides here.
+
+.tasks-page {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 24px 20px 0;
+}
+
+.tasks-topbar {
+    display: flex;
+    align-items: baseline;
+    padding: 4px 4px 16px;
+}
+
+.tasks-topbar-title {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.tasks-table-card {
+    background: var(--ytdl-surface-1);
+    border: 1px solid var(--ytdl-border);
+    border-radius: var(--ytdl-radius-lg, 16px);
+    box-shadow: var(--ytdl-shadow-sm);
+    overflow: hidden;
+}
+
+.tasks-table-card ::ng-deep {
+    .mat-mdc-table {
+        background: var(--ytdl-surface-1);
+    }
+
+    .mat-mdc-header-row {
+        background: var(--ytdl-surface-2);
+    }
+
+    .mat-mdc-header-cell {
+        color: var(--ytdl-text-secondary);
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        border-bottom-color: var(--ytdl-border);
+    }
+
+    .mat-mdc-cell {
+        color: var(--ytdl-text-primary);
+        border-bottom-color: var(--ytdl-border);
+        font-size: 14px;
+    }
+
+    .mat-mdc-row:hover .mat-mdc-cell {
+        background: var(--ytdl-surface-2);
+    }
+
+    .mat-mdc-paginator {
+        background: var(--ytdl-surface-1);
+        color: var(--ytdl-text-secondary);
+    }
+}
+
+.tasks-actionbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.tasks-empty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 48px 24px;
+    color: var(--ytdl-text-secondary);
+    text-align: center;
+
+    mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: var(--ytdl-text-tertiary);
+    }
+
+    h4 {
+        margin: 0;
+        font-weight: 500;
+    }
+}
+
 mat-header-cell, mat-cell {
     justify-content: center;
 }
@@ -12,23 +106,6 @@ mat-header-cell, mat-cell {
     position: absolute;
     top: 7px;
     left: 6px;
-}
-
-.downloads-action-button-div {
-    margin-top: 10px;
-    margin-left: 5px;
-}
-
-.rounded-top {
-    border-radius: 16px 16px 0px 0px !important;
-}
-
-.rounded-bottom {
-    border-radius: 0px 0px 16px 16px !important;
-}
-
-.rounded {
-    border-radius: 16px 16px 16px 16px !important;
 }
 
 :host ::ng-deep mat-row {
