@@ -9,7 +9,7 @@ RUN sh ./fetch-twitchdownloader.sh
 RUN sh ./fetch-deno.sh
 
 
-# Create our Ubuntu 24.04 with node 16.14.2 (that specific version is required as per: https://stackoverflow.com/a/72855258/8088021)
+# Create our Ubuntu 24.04 with Node.js 22 LTS (>= 22.23.4, fixes CVE-2026-111497 in the Brotli decoder)
 # Ubuntu 24.04 ships Python 3.12, needed since yt-dlp deprecated Python 3.10 (shipped by 22.04)
 FROM ubuntu:24.04 AS base
 ARG TARGETPLATFORM
@@ -23,7 +23,7 @@ ENV ALLOW_CONFIG_MUTATIONS=true
 ENV npm_config_cache=/app/.npm
 
 # Use NVM to get specific node version
-ENV NODE_VERSION=16.14.2
+ENV NODE_VERSION=22.23.4
 # Ubuntu 24.04 ships a default 'ubuntu' user occupying UID/GID 1000; remove it first
 RUN (userdel -r ubuntu 2>/dev/null || true) && \
     groupadd -g $GID $USER && useradd --system -m -g $USER --uid $UID $USER && \
@@ -42,7 +42,7 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 
 # Build frontend
 ARG BUILDPLATFORM
-FROM --platform=${BUILDPLATFORM} node:16 AS frontend
+FROM --platform=${BUILDPLATFORM} node:22-bookworm AS frontend
 RUN npm install -g @angular/cli
 WORKDIR /build
 COPY [ "package.json", "package-lock.json", "angular.json", "tsconfig.json", "/build/" ]

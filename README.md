@@ -75,13 +75,13 @@ If you're on a Synology NAS, unRAID, Raspberry Pi 4 or another special case, che
 <details>
 <summary><strong>📦 Manual installation</strong></summary>
 
-**Required**: Node.js 16, Python.
+**Required**: Node.js 22 LTS (22.23.4 or later), Python.
 **Optional**: AtomicParsley (thumbnail embedding, package `atomicparsley`), [Twitch Downloader CLI](https://github.com/lay295/TwitchDownloader) (Twitch VOD chat downloads).
 
 Debian/Ubuntu:
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install nodejs youtube-dl ffmpeg unzip python npm
 ```
 
