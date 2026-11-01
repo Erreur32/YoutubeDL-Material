@@ -1666,8 +1666,13 @@ app.post('/api/deleteArchiveItems', optionalJwt, async (req, res) => {
 });
 
 var upload_multer = multer({ dest: __dirname + '/appdata/' });
-app.post('/api/uploadCookies', upload_multer.single('cookies'), async (req, res) => {
+app.post('/api/uploadCookies', optionalJwt, requirePermission('settings'), upload_multer.single('cookies'), async (req, res) => {
     const new_path = path.join(__dirname, 'appdata', 'cookies.txt');
+
+    if (!req.file) {
+        res.sendStatus(400);
+        return;
+    }
 
     if (await fs.pathExists(req.file.path)) {
         await fs.rename(req.file.path, new_path);
