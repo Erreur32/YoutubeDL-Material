@@ -92,9 +92,14 @@
         </mat-tab-group>
     </div>
 
-    <div class="paginator-bar" [ngClass]="'card-size-' + postsService.card_size" *ngIf="usePaginator && selectedIndex > 0">
-        <app-sort-property [cardSize]="postsService.card_size" [(sortProperty)]="sortProperty" [(descendingMode)]="descendingMode" (sortOptionChanged)="sortOptionChanged($event)"></app-sort-property>
-        <mat-paginator class="paginator" [ngClass]="'card-size-' + postsService.card_size" #paginator (page)="pageChangeEvent($event)" [length]="file_count"
+    <div class="paginator-bar" *ngIf="usePaginator && selectedIndex > 0">
+        <mat-button-toggle-group *ngIf="!selectMode" [value]="postsService.card_size" (change)="postsService.setCardSize($event.value)" aria-label="File card size" i18n-aria-label="File card size">
+            <mat-button-toggle value="small" i18n="Small">Small</mat-button-toggle>
+            <mat-button-toggle value="medium" i18n="Medium">Medium</mat-button-toggle>
+            <mat-button-toggle value="large" i18n="Large">Large</mat-button-toggle>
+        </mat-button-toggle-group>
+        <app-sort-property [(sortProperty)]="sortProperty" [(descendingMode)]="descendingMode" (sortOptionChanged)="sortOptionChanged($event)"></app-sort-property>
+        <mat-paginator class="paginator" [selectConfig]="{panelClass: 'footer-select-panel'}" #paginator (page)="pageChangeEvent($event)" [length]="file_count"
                 [pageSize]="pageSize"
                 [pageSizeOptions]="[5, 10, 25, 100, this.paged_data && this.paged_data.length > 100 ? this.paged_data.length : 250]">
         </mat-paginator>

@@ -291,6 +291,22 @@ body.dark-theme, body.light-theme {
   }
 }
 
+// Le panneau de mat-select prend la largeur du champ et replie les libelles
+// longs sur deux lignes ; il vit dans l'overlay, donc hors du style du composant.
+.mat-mdc-select-panel.footer-select-panel {
+  width: max-content !important;
+  min-width: 100%;
+
+  .mat-mdc-option,
+  .mdc-list-item__primary-text {
+    font-size: 13px;
+  }
+
+  .mdc-list-item__primary-text {
+    white-space: nowrap;
+  }
+}
+
 .no-outline {
   outline: none;
 }

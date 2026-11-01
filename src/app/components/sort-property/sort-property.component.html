@@ -1,6 +1,6 @@
-<div class="sort-property" [ngClass]="'card-size-' + cardSize">
+<div class="sort-property">
     <mat-form-field appearance="outline" class="sort-property-select">
-        <mat-select [(ngModel)]="this.sortProperty" (selectionChange)="emitSortOptionChanged()">
+        <mat-select panelClass="footer-select-panel" [(ngModel)]="this.sortProperty" (selectionChange)="emitSortOptionChanged()">
             <mat-option *ngFor="let sortOption of sortProperties | keyvalue" [value]="sortOption.key">
                 {{sortOption['value']['label']}}
             </mat-option>

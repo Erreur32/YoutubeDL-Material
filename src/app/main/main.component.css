@@ -382,30 +382,33 @@
    sidebar; they live in a right-side overlay panel (see below) opened via
    the floating toggle button, so this row only ever holds one column. */
 
-/* Vue "medium" (par defaut) : alignee sur .home-container/.home-progress/
-   .home-section (800px) au lieu des 1280px precedents, pour que tout ait la
-   meme largeur en vue medium. */
+/* La galerie a sa propre largeur, independante du cadre URL/recherche
+   (.home-container) : elle suit uniquement "File card size". Le nombre de
+   colonnes s'adapte tout seul grace aux max-width de .small/medium/large-col. */
 .home-files-row {
-    max-width: 800px;
+    max-width: 1280px;
     margin: 28px auto 0;
     padding: 0 20px 8px;
+}
+
+/* Bootstrap plafonne .container a 1140px : levee ici seulement, pour ne pas
+   elargir aussi la page d'abonnement qui reutilise app-recent-videos. */
+.home-files-row ::ng-deep .files-container {
+    max-width: none;
 }
 
 .home-files-main {
     min-width: 0;
 }
 
-/* Vue "small" uniquement : garde la meme largeur que .home-container (600px)
-   au lieu des 1280px par defaut, pour rester coherent avec le reste de la
-   page dans cette vue. */
+/* Minimum pour que les 6 colonnes (col-2) contiennent des cartes de 150px +
+   30px de gouttiere sans chevauchement. */
 .home-files-row.card-size-small {
-    max-width: 600px;
+    max-width: 1120px;
 }
 
-/* Vue "large" : alignee sur les autres cadres de la page (1200px) plutot que
-   les 1280px par defaut, pour que tout ait la meme largeur en vue large. */
 .home-files-row.card-size-large {
-    max-width: 1200px;
+    max-width: 1920px;
 }
 
 /* Custom playlists toggle button - floating, always reachable regardless of
