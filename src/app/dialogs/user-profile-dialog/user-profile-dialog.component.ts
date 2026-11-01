@@ -52,8 +52,7 @@ export class UserProfileDialogComponent implements OnInit {
   }
 
   cardSizeOptionChanged(new_size) {
-    localStorage.setItem('card_size', new_size);
-    this.postsService.card_size = new_size;
+    this.postsService.setCardSize(new_size);
   }
 
 }

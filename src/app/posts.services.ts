@@ -275,6 +275,11 @@ export class PostsService implements CanActivate {
         return required_perm ? this.hasPermission(required_perm) : true;
     }
 
+    setCardSize(card_size: string) {
+        localStorage.setItem('card_size', card_size);
+        this.card_size = card_size;
+    }
+
     setTheme(theme) {
         this.theme = this.THEMES_CONFIG[theme];
     }

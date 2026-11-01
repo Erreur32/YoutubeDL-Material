@@ -595,7 +595,7 @@ function loadConfigValues() {
 }
 
 // in dev mode the frontend is served by a separate `ng serve` process, on the default
-// port (4200) or the port used by dev-start.sh (4310), and may be reached over LAN via
+// port (4200), and may be reached over LAN via
 // this machine's own IP (not just localhost) - see posts.services.ts, which builds the
 // API URL from window.location.hostname for that reason. The allowlist is built only
 // from this machine's own network interface addresses (never from request data), so an
@@ -604,7 +604,7 @@ function loadConfigValues() {
 // always built from a hardcoded literal, not request data - combined with
 // Access-Control-Allow-Credentials that would otherwise be a CORS credential leak. This
 // branch only ever runs when debugMode is set (YTDL_MODE=dev), never in production.
-const DEV_ORIGIN_PORTS = ['4200', '4310'];
+const DEV_ORIGIN_PORTS = ['4200'];
 
 function getDevOriginAllowlist() {
     const hosts = ['localhost', '127.0.0.1'];

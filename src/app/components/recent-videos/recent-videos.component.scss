@@ -66,49 +66,114 @@
     background-color: var(--ytdl-surface-1);
     border-radius: var(--ytdl-radius-lg, 16px);
     padding: 4px 12px;
+    /* zoom (et non transform: scale) : reduit aussi la place occupee, et agit
+       sur les dimensions internes MDC figees a la compilation Sass. */
+    --footer-zoom: .8;
+    zoom: var(--footer-zoom);
 
-    /* En taille "large" le paginateur est agrandi via transform: scale(),
-       qui ne reserve pas d'espace dans le flux flex - un padding/gap trop
-       petit fait alors deborder le paginateur sur le bouton de tri a sa
-       gauche. On augmente donc l'espacement pour laisser la place au zoom. */
-    &.card-size-large {
-        gap: 32px;
-        padding: 8px 24px;
+    /* Tous les controles du footer partagent la meme hauteur, bordure et
+       police. ::ng-deep : ils appartiennent aux composants Material/tri. */
+    --footer-control-height: 40px;
+    /* 13px a l'ecran, comme les listes ouvertes (voir styles.scss), qui vivent
+       dans l'overlay et ne subissent donc pas le zoom. */
+    --footer-font-size: calc(13px / var(--footer-zoom));
+
+    ::ng-deep {
+        .mat-mdc-form-field,
+        .mat-mdc-form-field .mat-mdc-select,
+        .mat-mdc-form-field .mat-mdc-select-value,
+        .mat-mdc-paginator-page-size-label,
+        .mat-mdc-paginator-range-label,
+        .mat-button-toggle-label-content {
+            font-size: var(--footer-font-size);
+        }
+
+        .mat-mdc-form-field-subscript-wrapper,
+        .mat-mdc-button-touch-target {
+            display: none;
+        }
+
+        .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+            height: var(--footer-control-height);
+        }
+
+        /* MDC aligne le champ sur la ligne de base : le texte tombe trop bas
+           une fois la hauteur reduite, d'ou un centrage flex explicite. */
+        .mat-mdc-form-field .mat-mdc-form-field-flex {
+            height: 100%;
+            align-items: center;
+        }
+
+        .mat-mdc-form-field .mat-mdc-form-field-infix {
+            display: flex;
+            align-items: center;
+            min-height: var(--footer-control-height);
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .mat-mdc-form-field .mat-mdc-select-arrow-wrapper {
+            transform: none;
+        }
+
+        .mat-mdc-form-field .mdc-notched-outline > * {
+            border-color: var(--ytdl-border-strong);
+        }
+
+        .mat-mdc-icon-button.mat-mdc-button-base {
+            box-sizing: border-box;
+            width: var(--footer-control-height);
+            height: var(--footer-control-height);
+            padding: 7px;
+            border: 1px solid var(--ytdl-border-strong);
+            border-radius: var(--ytdl-radius-sm);
+        }
+
+        .mat-button-toggle-group {
+            box-sizing: border-box;
+            height: var(--footer-control-height);
+            border: 1px solid var(--ytdl-border-strong);
+            border-radius: var(--ytdl-radius-sm);
+        }
+
+        .mat-button-toggle + .mat-button-toggle {
+            border-left-color: var(--ytdl-border-strong);
+        }
+
+        .mat-button-toggle-label-content {
+            line-height: calc(var(--footer-control-height) - 2px);
+        }
+
+        .mat-button-toggle-group .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
+            background-color: var(--ytdl-accent);
+            color: var(--ytdl-accent-contrast);
+        }
+
+        .mat-mdc-paginator-container {
+            min-height: 0;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .mat-mdc-paginator-page-size {
+            align-items: center;
+            margin: 0;
+        }
+
+        .mat-mdc-paginator-range-label {
+            margin: 0;
+        }
+
+        .mat-mdc-paginator-range-actions {
+            gap: 8px;
+        }
     }
 }
 
 .paginator {
     margin-top: 5px;
-    /* Le fond est maintenant porte par .paginator-bar (cadre commun avec le
-       bouton de tri), le paginateur reste donc transparent ici. */
+    /* Le fond est porte par .paginator-bar (cadre commun avec le tri). */
     background-color: transparent !important;
-
-    /* Le reglage "File card size" (dialog Profile) agit aussi sur la densite
-       du paginateur, pour rester coherent avec la taille des cartes au-dessus.
-       transform: scale() est utilise en plus des tailles/polices car les
-       dimensions internes du paginateur MDC sont figees a la compilation Sass
-       et ne repondent pas de facon fiable a un simple override de propriete
-       (meme probleme que les champs outline plus haut dans le projet). */
-    &.card-size-small {
-        font-size: 12px;
-        transform: scale(0.75);
-        transform-origin: right center;
-        /* La boite garde sa hauteur non reduite (transform ne modifie pas
-           la mise en page), d'ou ce margin-top: 0 pour eviter un vide
-           visuel supplementaire sous le contenu retreci. */
-        margin-top: 0;
-        .mat-mdc-paginator-container { min-height: 40px; }
-    }
-
-    &.card-size-large {
-        font-size: 15px;
-        /* Dezoome par rapport a la 1ere version (1.5x) : a ce niveau de zoom
-           le paginateur debordait sur le bouton de tri et le cachait. */
-        transform: scale(1.2);
-        transform-origin: center center;
-        .mat-mdc-paginator-container { min-height: 64px; }
-        .mat-mdc-paginator-page-size-select { width: 76px; }
-    }
 }
 
 .my-videos-title {
