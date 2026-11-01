@@ -20,6 +20,7 @@ echo "(1/5) READY - Acquire temp dependencies in ffmpeg obtain layer"
 apt-get update && apt-get -y install curl xz-utils
 echo "(2/5) DOWNLOAD - Acquire latest ffmpeg and ffprobe from John van Sickle's master-sourced builds in ffmpeg obtain layer"
 curl -o ffmpeg.txz \
+    --fail \
     --connect-timeout 5 \
     --max-time 120 \
     --retry 5 \
