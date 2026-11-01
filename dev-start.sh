@@ -26,8 +26,8 @@ start() {
     echo "Generation des traductions i18n (xlf -> json)..."
     (cd "$ROOT_DIR" && node src/postbuild.mjs > "$LOG_DIR/postbuild.log" 2>&1) || true
 
-    echo "Demarrage du frontend (ng serve, port 4310)..."
-    (cd "$ROOT_DIR" && NODE_OPTIONS="--max-old-space-size=2048" nohup npx ng serve --host 0.0.0.0 --port 4310 --disable-host-check > "$FRONTEND_LOG" 2>&1 &
+    echo "Demarrage du frontend (ng serve, port 4200)..."
+    (cd "$ROOT_DIR" && NODE_OPTIONS="--max-old-space-size=2048" nohup npx ng serve --host 0.0.0.0 --port 4200 --disable-host-check > "$FRONTEND_LOG" 2>&1 &
      echo $! > "$FRONTEND_PID_FILE")
   fi
 
@@ -40,7 +40,7 @@ start() {
   fi
 
   echo "Logs: $FRONTEND_LOG / $BACKEND_LOG"
-  echo "Frontend: http://192.168.32.202:4310/"
+  echo "Frontend: http://192.168.32.202:4200/"
 }
 
 stop() {
