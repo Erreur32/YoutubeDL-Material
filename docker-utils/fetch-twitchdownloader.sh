@@ -17,8 +17,10 @@ esac
 
 echo "(INFO) Architecture detected: $ARCH"
 echo "(1/5) READY - Install unzip"
-apt-get update && apt-get -y install unzip curl jq libicu74
-VERSION=$(curl --silent "https://api.github.com/repos/lay295/TwitchDownloader/releases" | jq -r --arg arch "$ARCH" '[.[] | select(.assets | length > 0) | select(.assets[].name | contains("CLI") and contains($arch))] | max_by(.published_at) | .tag_name')
+apt-get update && apt-get -y install unzip curl libicu74
+# Read the tag from the release redirect: the unauthenticated GitHub API is rate limited on shared CI runners.
+LATEST_URL=$(curl --silent --fail --location --output /dev/null --write-out '%{url_effective}' "https://github.com/lay295/TwitchDownloader/releases/latest")
+VERSION=${LATEST_URL##*/}
 echo "(2/5) DOWNLOAD - Acquire twitchdownloader"
 curl -o twitchdownloader.zip \
     --connect-timeout 5 \
